@@ -52,7 +52,7 @@ The visual direction comes from the 2021 One Million Black Women brand guideline
 - Brand colors: white `#FFFFFF`, off-white `#F8F8F5`, sky blue `#9BEEEB`, magenta `#98004D`, coral `#FA6059`, emerald `#004E29`, Naples yellow `#FFB133`, and black `#000000`.
 - Use black or white typography on brand-color surfaces; do not introduce gradients.
 - Body and interface copy use Inter from Google Fonts, with Arial/Helvetica fallbacks.
-- Headlines use a condensed system-font stack to approximate the brand display style without bundling licensed fonts.
+- Primary display headlines and module numbers use League Gothic from Google Fonts, with Arial Narrow/condensed fallbacks. Longer module titles use Inter 800 in sentence case, following the secondary-headline hierarchy.
 - The desktop module directory is a four-across grid. Narrow tablets use two columns. Mobile uses compact single-column rows with two-line descriptions to limit scrolling.
 - Keep the page accessible: semantic headings, full-card links, visible keyboard focus, readable type, reduced-motion support, and the skip link should remain intact.
 
@@ -69,7 +69,7 @@ Before publishing:
 1. Confirm `index.html` loads successfully and all four module links resolve.
 2. Run `git diff --check`.
 3. Recalculate the four module checksums and compare them with the values above.
-4. Confirm the Inter stylesheet remains reachable, while retaining the local font fallbacks.
+4. Confirm the Google Fonts stylesheet for Inter and League Gothic remains reachable, while retaining the local font fallbacks.
 
 ## Publishing
 

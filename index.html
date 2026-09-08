@@ -8,7 +8,7 @@
   <title>Black in Business | Interactive Learning</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&amp;family=League+Gothic&amp;display=swap" rel="stylesheet">
   <style>
     :root {
       --white: #ffffff;
@@ -19,6 +19,7 @@
       --emerald: #004e29;
       --naples-yellow: #ffb133;
       --black: #000000;
+      --display-font: "League Gothic", "Arial Narrow", "Helvetica Neue Condensed", Arial, sans-serif;
       --page-gutter: clamp(1.25rem, 4vw, 4.5rem);
       --hairline: 1px solid var(--black);
     }
@@ -117,8 +118,9 @@
     }
 
     .module-count strong {
-      font-family: "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+      font-family: var(--display-font);
       font-size: 2.25rem;
+      font-weight: 400;
       line-height: 1;
     }
 
@@ -159,12 +161,11 @@
     h1 {
       max-width: 11ch;
       margin: 0;
-      font-family: "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", Arial, sans-serif;
+      font-family: var(--display-font);
       font-size: clamp(3.75rem, 8vw, 7.5rem);
-      font-stretch: condensed;
-      font-weight: 900;
-      letter-spacing: -0.055em;
-      line-height: 0.82;
+      font-weight: 400;
+      letter-spacing: -0.015em;
+      line-height: 0.9;
       text-transform: uppercase;
     }
 
@@ -231,12 +232,11 @@
     .section-heading h2 {
       grid-column: 1 / 4;
       margin: 0;
-      font-family: "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", Arial, sans-serif;
+      font-family: var(--display-font);
       font-size: clamp(2.5rem, 4.5vw, 4.75rem);
-      font-stretch: condensed;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-      line-height: 0.9;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 0.92;
       text-transform: uppercase;
     }
 
@@ -349,10 +349,11 @@
 
     .module-number {
       margin-bottom: auto;
-      font-family: "Arial Narrow", "Helvetica Neue Condensed", Arial, sans-serif;
+      font-family: var(--display-font);
       font-size: clamp(3.25rem, 5vw, 5.25rem);
-      letter-spacing: -0.04em;
-      line-height: 0.8;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      line-height: 0.85;
     }
 
     .module-kicker {
@@ -361,15 +362,13 @@
     }
 
     .module-card h3 {
-      max-width: 13ch;
+      max-width: 15ch;
       margin: 0;
-      font-family: "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", Arial, sans-serif;
-      font-size: clamp(1.65rem, 2.4vw, 2.75rem);
-      font-stretch: condensed;
-      font-weight: 900;
-      letter-spacing: -0.045em;
-      line-height: 0.95;
-      text-transform: uppercase;
+      font-family: "Inter", Arial, Helvetica, sans-serif;
+      font-size: clamp(1.5rem, 1.85vw, 2.1rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.08;
     }
 
     .module-description {
@@ -545,7 +544,7 @@
 
       .module-card h3 {
         max-width: none;
-        font-size: 1.8rem;
+        font-size: 1.55rem;
       }
 
       .module-description {
