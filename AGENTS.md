@@ -9,10 +9,11 @@ There is no package manager, build step, framework, or server-side component.
 ## Current status (2026-09-08)
 
 - Default branch: `main`
-- Current public repository: `https://github.com/HughMackey-LSL/bib-interactives`
-- Current GitHub Pages site: `https://hughmackey-lsl.github.io/bib-interactives/`
-- Repository ownership is being transferred to the `sternlsl` GitHub organization. At the time of this note, `sternlsl/bib-interactives` is not yet visible through the GitHub API and the local `origin` still points to the personal-account URL.
-- After the transfer, verify the repository and Pages URLs, then update `origin`, this status section, and `README.md` if necessary. Do not assume the new Pages URL until GitHub reports it as deployed.
+- Public repository: `https://github.com/sternlsl/bib-interactives`
+- GitHub Pages site: `https://sternlsl.github.io/bib-interactives/`
+- Ownership was transferred from `HughMackey-LSL` to the `sternlsl` GitHub organization on 2026-09-08.
+- The local `origin` points to `https://github.com/sternlsl/bib-interactives.git`.
+- GitHub reports the organization-owned Pages deployment as built from the root of `main`.
 
 Recent milestones:
 
