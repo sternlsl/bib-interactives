@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial statements simulator — Ms. Yeo's Design Studio</title>
+<style>
+  :root {
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f5f4f0;
+    --color-bg-tertiary: #fafaf7;
+    --color-bg-info: #e6f1fb;
+    --color-bg-success: #eaf3de;
+    --color-bg-danger: #fcebeb;
+    --color-bg-warn: #fdf4e0;
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #5f5e5a;
+    --color-text-tertiary: #888780;
+    --color-text-info: #0c447c;
+    --color-text-success: #27500a;
+    --color-text-danger: #791f1f;
+    --color-text-warn: #6b4c00;
+    --color-border-tertiary: rgba(0, 0, 0, 0.12);
+    --color-border-secondary: rgba(0, 0, 0, 0.25);
+    --color-border-info: #378add;
+    --color-border-success: #639922;
+    --color-border-danger: #e24b4a;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--color-text-primary);
+    background: var(--color-bg-tertiary);
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 16px 32px;
+  }
+  h1 { font-size: 22px; font-weight: 500; margin: 0 0 4px; }
+  .subtitle { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 16px; }
+
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 12px;
+    background: var(--color-bg-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--color-text-primary);
+    transition: all 0.15s;
+  }
+  button:hover:not(:disabled) { background: var(--color-bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .step-title { font-size: 18px; font-weight: 500; }
+  .step-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .controls { display: flex; gap: 8px; align-items: center; }
+  .score-pill {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    padding: 4px 10px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+  }
+  .step-counter {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    min-width: 48px;
+    text-align: center;
+  }
+
+  .story-card {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .story-text { font-size: 14px; line-height: 1.6; margin-bottom: 12px; }
+
+  .prediction-panel {
+    display: none;
+    background: var(--color-bg-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    margin-bottom: 10px;
+  }
+  .pred-header {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pred-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .pred-row:last-of-type { border-bottom: none; }
+  .pred-row-label { font-size: 13px; font-weight: 500; }
+  .pred-options { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .pred-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+    border: 0.5px solid var(--color-border-secondary);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 38px;
+    font-family: inherit;
+    color: var(--color-text-primary);
+  }
+  .pred-btn:hover:not(:disabled) { background: var(--color-bg-secondary); }
+  .pred-btn.selected {
+    background: var(--color-bg-info);
+    color: var(--color-text-info);
+    border-color: var(--color-border-info);
+  }
+  .pred-btn.correct {
+    background: var(--color-bg-success);
+    color: var(--color-text-success);
+    border-color: var(--color-border-success);
+  }
+  .pred-btn.wrong {
+    background: var(--color-bg-danger);
+    color: var(--color-text-danger);
+    border-color: var(--color-border-danger);
+  }
+  .pred-btn:disabled { cursor: default; opacity: 0.9; }
+  .pred-explain {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    flex-basis: 100%;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+  .concept-note {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--color-border-info);
+    background: var(--color-bg-info);
+    color: var(--color-text-info);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .concept-note.flag {
+    border-left-color: #c88a00;
+    background: var(--color-bg-warn);
+    color: var(--color-text-warn);
+  }
+
+  .submit-row {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .feedback-text { font-size: 13px; }
+
+  .statements-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .statement-card {
+    background: var(--color-bg-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+  }
+  .stmt-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-bottom: 2px;
+  }
+  .stmt-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .stmt-section {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .stmt-table {
+    width: 100%;
+    font-size: 12px;
+    margin-bottom: 8px;
+    border-collapse: collapse;
+  }
+  .stmt-table td {
+    padding: 2px 0;
+  }
+  .stmt-table td.amount {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .stmt-table tr.total td {
+    border-top: 0.5px solid var(--color-border-tertiary);
+    padding-top: 4px;
+    font-weight: 500;
+  }
+  .stmt-footer-note {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+  }
+  .bs-balance-pill {
+    margin-top: 8px;
+    font-size: 11px;
+    padding: 4px 6px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    background: var(--color-bg-success);
+    color: var(--color-text-success);
+  }
+  .bs-balance-pill.off {
+    background: var(--color-bg-danger);
+    color: var(--color-text-danger);
+  }
+
+  @media (max-width: 700px) {
+    .statements-grid { grid-template-columns: 1fr; }
+    .pred-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Financial statements simulator</h1>
+  <div class="subtitle">Scenario: Ms. Yeo's Design Studio — a service company · month of March</div>
+
+  <div class="header-row">
+    <div>
+      <div class="step-label">Current step</div>
+      <div id="step-title" class="step-title">Step 0 — Day one</div>
+    </div>
+    <div class="controls">
+      <span id="score-display" class="score-pill">Score: 0 / 0</span>
+      <span id="step-counter" class="step-counter">0 / 10</span>
+      <button id="reset-btn" title="Reset">↻ Reset</button>
+    </div>
+  </div>
+
+  <div class="story-card">
+    <div id="story-text" class="story-text">
+      Welcome! Ms. Yeo has just opened a design studio. There is no inventory and no cost of goods sold — the product is her team's time. Click <strong>Start</strong> to see the first transaction and predict how it affects each statement.
+    </div>
+
+    <div id="prediction-panel" class="prediction-panel">
+      <div class="pred-header">Your prediction</div>
+      <div id="pred-rows"></div>
+      <div class="submit-row">
+        <button id="submit-btn" disabled>Check answer</button>
+        <span id="feedback-text" class="feedback-text"></span>
+      </div>
+      <div id="concept-note-box"></div>
+    </div>
+
+    <div id="action-row" style="display: flex; gap: 8px;">
+      <button id="next-btn">Start →</button>
+    </div>
+  </div>
+
+  <div class="statements-grid">
+
+    <div class="statement-card">
+      <div class="stmt-label">Balance sheet</div>
+      <div class="stmt-title">What we own & owe</div>
+
+      <div class="stmt-section">Assets</div>
+      <table class="stmt-table">
+        <tr><td>Cash</td><td id="bs-cash" class="amount">0</td></tr>
+        <tr><td>Accounts receivable</td><td id="bs-ar" class="amount">0</td></tr>
+        <tr><td>Prepaid insurance</td><td id="bs-prepaid" class="amount">0</td></tr>
+        <tr><td>Equipment, net</td><td id="bs-equip" class="amount">0</td></tr>
+        <tr class="total"><td>Total assets</td><td id="bs-ta" class="amount">0</td></tr>
+      </table>
+
+      <div class="stmt-section">Liabilities</div>
+      <table class="stmt-table">
+        <tr><td>Salaries payable</td><td id="bs-salpay" class="amount">0</td></tr>
+        <tr><td>Unearned revenue</td><td id="bs-unearned" class="amount">0</td></tr>
+      </table>
+
+      <div class="stmt-section">Equity</div>
+      <table class="stmt-table">
+        <tr><td>Common stock</td><td id="bs-cs" class="amount">0</td></tr>
+        <tr><td>Retained earnings</td><td id="bs-re" class="amount">0</td></tr>
+        <tr class="total"><td>Total L + E</td><td id="bs-tle" class="amount">0</td></tr>
+      </table>
+      <div id="bs-balance" class="bs-balance-pill">In balance ✓</div>
+    </div>
+
+    <div class="statement-card">
+      <div class="stmt-label">Income statement</div>
+      <div class="stmt-title">Did we earn a profit?</div>
+
+      <table class="stmt-table">
+        <tr><td>Service revenue</td><td id="is-rev" class="amount">0</td></tr>
+      </table>
+      <div class="stmt-section">Operating expenses</div>
+      <table class="stmt-table">
+        <tr><td>Salaries</td><td id="is-sal" class="amount">0</td></tr>
+        <tr><td>Rent</td><td id="is-rent" class="amount">0</td></tr>
+        <tr><td>Insurance</td><td id="is-ins" class="amount">0</td></tr>
+        <tr><td>Depreciation</td><td id="is-dep" class="amount">0</td></tr>
+        <tr class="total"><td>Total operating exp.</td><td id="is-totex" class="amount">0</td></tr>
+        <tr class="total"><td>Net income</td><td id="is-ni" class="amount">0</td></tr>
+      </table>
+      <div class="stmt-footer-note">Revenue is recorded when the work is <em>done</em>, not when cash arrives.</div>
+    </div>
+
+    <div class="statement-card">
+      <div class="stmt-label">Cash flows</div>
+      <div class="stmt-title">Where did cash move?</div>
+
+      <div class="stmt-section">Operating</div>
+      <table class="stmt-table">
+        <tr><td>From clients</td><td id="cf-clients" class="amount">0</td></tr>
+        <tr><td>Salaries paid</td><td id="cf-sal" class="amount">0</td></tr>
+        <tr><td>Rent paid</td><td id="cf-rent" class="amount">0</td></tr>
+        <tr><td>Insurance paid</td><td id="cf-ins" class="amount">0</td></tr>
+      </table>
+
+      <div class="stmt-section">Investing</div>
+      <table class="stmt-table">
+        <tr><td>Equipment</td><td id="cf-equip" class="amount">0</td></tr>
+      </table>
+
+      <div class="stmt-section">Financing</div>
+      <table class="stmt-table">
+        <tr><td>Stock issued</td><td id="cf-stock" class="amount">0</td></tr>
+      </table>
+
+      <table class="stmt-table">
+        <tr class="total"><td>Net Δ cash</td><td id="cf-net" class="amount">0</td></tr>
+      </table>
+      <div class="stmt-footer-note">Net change must equal the cash balance on the balance sheet.</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var steps = [
+    {
+      title: "Step 1 — Ms. Yeo invests her own money",
+      story: "Ms. Yeo incorporates the studio and invests $60,000 of her savings in exchange for common stock.",
+      key: {
+        is: { dir: 0, why: "Money from an owner is never revenue — nothing has been earned yet." },
+        cf: { dir: 1, why: "+$60,000 cash in from financing activities (stock issuance)." }
+      },
+      note: "Owner contributions land in <strong>financing</strong>, not operating. The studio simply has a bigger balance sheet on both sides.",
+      delta: { cash: 60000, cs: 60000, cf_stock: 60000 }
+    },
+    {
+      title: "Step 2 — Buy design workstations & equipment",
+      story: "The studio pays $24,000 cash for design workstations, tablets, and a wide-format printer. Useful life: 4 years.",
+      key: {
+        is: { dir: 0, why: "Buying a long-lived asset isn't an expense — the cost reaches the IS later, a little at a time, as depreciation." },
+        cf: { dir: -1, why: "−$24,000 cash out in investing activities (purchase of equipment)." }
+      },
+      note: "Total assets do not move — one asset became another. Cash turned into equipment.",
+      delta: { cash: -24000, equip: 24000, cf_equip: -24000 }
+    },
+    {
+      title: "Step 3 — Prepay a year of insurance",
+      story: "The studio pays $6,000 cash for twelve months of professional liability insurance beginning March 1.",
+      key: {
+        is: { dir: 0, why: "Prepaid insurance is an asset — twelve months of coverage the studio has bought but not yet used." },
+        cf: { dir: -1, why: "−$6,000 cash out in operating activities (insurance paid up front)." }
+      },
+      note: "Cash left today, but no expense has been recorded yet. This is the classic <em>cash out now, expense later</em> case.",
+      delta: { cash: -6000, prepaid: 6000, cf_ins: -6000 }
+    },
+    {
+      title: "Step 4 — A client wires a retainer, up front",
+      story: "Northwind Foods signs a three-month brand advisory retainer for $18,000 and wires the entire fee in cash on March 5 — <em>before any work begins</em>.",
+      key: {
+        is: { dir: 0, why: "The cash is in the bank today, but Ms. Yeo has not done the work yet — she owes Northwind three months of service." },
+        cf: { dir: 1, why: "+$18,000 cash in from clients (operating)." }
+      },
+      note: "The signature service-company transaction. Because the work isn't done, the credit is <strong>unearned revenue, a liability</strong> — not revenue. Watch the IS stay perfectly flat while cash jumps $18,000.",
+      flag: true,
+      delta: { cash: 18000, unearned: 18000, cf_clients: 18000 }
+    },
+    {
+      title: "Step 5 — A project finishes — and gets invoiced",
+      story: "The studio completes a full identity system for Calder Group and invoices $32,000, due in 30 days. No cash has been received.",
+      key: {
+        is: { dir: 1, why: "Service revenue +$32,000. The work is done, so the revenue is earned and recorded — even though not a dollar has moved." },
+        cf: { dir: 0, why: "No cash has moved. Accounts receivable is the asset that represents the promise of that cash." }
+      },
+      note: "The exact mirror of Step 4. Revenue up on the IS, cash flow statement completely untouched.",
+      flag: true,
+      delta: { ar: 32000, rev: 32000 }
+    },
+    {
+      title: "Step 6 — Calder pays part of the invoice",
+      story: "Calder Group remits $19,000 against its $32,000 balance.",
+      key: {
+        is: { dir: 0, why: "Collecting a receivable is not revenue — that already happened on March 18. Recording it again would double-count." },
+        cf: { dir: 1, why: "+$19,000 cash in from clients (operating)." }
+      },
+      note: "One asset (A/R) turned into another (cash). Total assets and net income both hold still while cash rises.",
+      delta: { cash: 19000, ar: -19000, cf_clients: 19000 }
+    },
+    {
+      title: "Step 7 — March studio rent",
+      story: "The studio pays $4,000 cash for its March office rent.",
+      key: {
+        is: { dir: -1, why: "Rent expense $4,000 reduces net income." },
+        cf: { dir: -1, why: "−$4,000 cash out in operating activities." }
+      },
+      note: "The simplest case: March's rent buys March, and March is over. Cash out and expense recognized in the same period, in the same amount.",
+      delta: { cash: -4000, rentexp: 4000, cf_rent: -4000 }
+    },
+    {
+      title: "Step 8 — Payroll — mostly paid",
+      story: "Staff earned $14,000 in salaries during March. The studio pays $11,000 now; the remaining $3,000 goes out in the April 3 pay run.",
+      key: {
+        is: { dir: -1, why: "Salaries expense is the full $14,000 the staff <em>earned</em>." },
+        cf: { dir: -1, why: "Only the $11,000 actually <em>paid</em> reduces cash." }
+      },
+      note: "Salaries are the COGS of a service business — the single largest cost. Watch the $3,000 gap sit on the balance sheet as salaries payable.",
+      flag: true,
+      delta: { cash: -11000, salpay: 3000, salexp: 14000, cf_sal: -11000 }
+    },
+    {
+      title: "Step 9 — One month of the retainer is earned",
+      story: "March is the first of Northwind's three retainer months, so $6,000 of the $18,000 has now been earned.",
+      key: {
+        is: { dir: 1, why: "Service revenue +$6,000. The cash arrived three weeks ago; the earning happens now." },
+        cf: { dir: 0, why: "No cash moved. The cash for this arrived back in Step 4." }
+      },
+      note: "The other half of Step 4. The liability (unearned revenue) shrinks by exactly what moves to revenue.",
+      flag: true,
+      delta: { unearned: -6000, rev: 6000 }
+    },
+    {
+      title: "Step 10 — Month-end: insurance used and equipment aged",
+      story: "Two assets got quietly smaller during March. One month of the insurance policy was used up ($500 of the $6,000), and the equipment lost one month of its four-year life ($500 of depreciation).",
+      key: {
+        is: { dir: -1, why: "Two expenses ($1,000 total) reduce net income." },
+        cf: { dir: 0, why: "Zero cash moved. The cash for insurance left in Step 3; the cash for equipment left in Step 2." }
+      },
+      note: "Two expenses, zero cash. Adjusting entries are how the accrual system catches up with what actually got consumed.",
+      flag: true,
+      delta: { prepaid: -500, equip: -500, insexp: 500, depexp: 500 }
+    }
+  ];
+
+  var state = {
+    step: 0,
+    phase: 'intro',
+    correct: 0,
+    answered: 0,
+    predictions: { is: null, cf: null },
+    bs: { cash: 0, ar: 0, prepaid: 0, equip: 0, salpay: 0, unearned: 0, cs: 0 },
+    is: { rev: 0, salexp: 0, rentexp: 0, insexp: 0, depexp: 0 },
+    cf: { clients: 0, sal: 0, rent: 0, ins: 0, equip: 0, stock: 0 }
+  };
+
+  function applyDelta(d) {
+    if (d.cash) state.bs.cash += d.cash;
+    if (d.ar) state.bs.ar += d.ar;
+    if (d.prepaid) state.bs.prepaid += d.prepaid;
+    if (d.equip) state.bs.equip += d.equip;
+    if (d.salpay) state.bs.salpay += d.salpay;
+    if (d.unearned) state.bs.unearned += d.unearned;
+    if (d.cs) state.bs.cs += d.cs;
+    if (d.rev) state.is.rev += d.rev;
+    if (d.salexp) state.is.salexp += d.salexp;
+    if (d.rentexp) state.is.rentexp += d.rentexp;
+    if (d.insexp) state.is.insexp += d.insexp;
+    if (d.depexp) state.is.depexp += d.depexp;
+    if (d.cf_clients) state.cf.clients += d.cf_clients;
+    if (d.cf_sal) state.cf.sal += d.cf_sal;
+    if (d.cf_rent) state.cf.rent += d.cf_rent;
+    if (d.cf_ins) state.cf.ins += d.cf_ins;
+    if (d.cf_equip) state.cf.equip += d.cf_equip;
+    if (d.cf_stock) state.cf.stock += d.cf_stock;
+  }
+
+  function fmt(n) {
+    n = Math.round(n);
+    if (n === 0) return "—";
+    var s = Math.abs(n).toLocaleString();
+    return n < 0 ? "(" + s + ")" : s;
+  }
+
+  function dirLabel(d) {
+    if (d === 1) return "Increases";
+    if (d === -1) return "Decreases";
+    return "No change";
+  }
+
+  function renderPredictionPanel() {
+    var rows = [
+      { id: 'is', label: 'Income statement' },
+      { id: 'cf', label: 'Cash flows' }
+    ];
+    var step = steps[state.step - 1];
+    var container = document.getElementById('pred-rows');
+    container.innerHTML = '';
+
+    rows.forEach(function(row) {
+      var wrap = document.createElement('div');
+      wrap.className = 'pred-row';
+
+      var label = document.createElement('div');
+      label.className = 'pred-row-label';
+      label.textContent = row.label;
+      wrap.appendChild(label);
+
+      var opts = document.createElement('div');
+      opts.className = 'pred-options';
+
+      [{ v: 1, t: '↑ Up' }, { v: 0, t: '— No change' }, { v: -1, t: '↓ Down' }].forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'pred-btn';
+        btn.textContent = opt.t;
+        btn.dataset.value = opt.v;
+        btn.dataset.row = row.id;
+
+        var selected = state.predictions[row.id] === opt.v;
+        if (state.phase === 'revealed') {
+          var correctVal = step.key[row.id].dir;
+          if (opt.v === correctVal) btn.classList.add('correct');
+          else if (selected) btn.classList.add('wrong');
+          btn.disabled = true;
+        } else {
+          if (selected) btn.classList.add('selected');
+          btn.addEventListener('click', function() {
+            state.predictions[row.id] = opt.v;
+            render();
+          });
+        }
+        opts.appendChild(btn);
+      });
+
+      if (state.phase === 'revealed') {
+        var explain = document.createElement('div');
+        explain.className = 'pred-explain';
+        var correctVal2 = step.key[row.id].dir;
+        var userVal = state.predictions[row.id];
+        var isCorrect = userVal === correctVal2;
+        var mark = isCorrect
+          ? '<span style="color: var(--color-text-success); font-weight: 500;">✓ Correct.</span>'
+          : '<span style="color: var(--color-text-danger); font-weight: 500;">✗ Correct answer: ' + dirLabel(correctVal2) + '.</span>';
+        explain.innerHTML = mark + ' ' + step.key[row.id].why;
+        opts.appendChild(explain);
+      }
+      wrap.appendChild(opts);
+      container.appendChild(wrap);
+    });
+
+    var allChosen = state.predictions.is !== null && state.predictions.cf !== null;
+    document.getElementById('submit-btn').disabled = state.phase !== 'predicting' || !allChosen;
+  }
+
+  function render() {
+    var total = steps.length;
+    document.getElementById('step-counter').textContent = state.step + ' / ' + total;
+    document.getElementById('score-display').textContent = 'Score: ' + state.correct + ' / ' + (state.answered * 2);
+
+    var storyText = document.getElementById('story-text');
+    var stepTitle = document.getElementById('step-title');
+    var predPanel = document.getElementById('prediction-panel');
+    var actionRow = document.getElementById('action-row');
+    var nextBtn = document.getElementById('next-btn');
+    var submitBtn = document.getElementById('submit-btn');
+    var feedback = document.getElementById('feedback-text');
+    var noteBox = document.getElementById('concept-note-box');
+
+    if (state.phase === 'intro') {
+      stepTitle.textContent = state.step === 0 ? "Step 0 — Day one" : "Done!";
+      storyText.innerHTML = state.step === 0
+        ? "Welcome! Ms. Yeo has just opened a design studio. There is no inventory and no cost of goods sold — the product is her team's time. Click <strong>Start</strong> to see the first transaction and predict how it affects each statement."
+        : "All 10 transactions complete. Final score: <strong>" + state.correct + " / " + (state.answered * 2) + "</strong>. Review the statements below or hit reset to try again.";
+      predPanel.style.display = 'none';
+      actionRow.style.display = state.step === 0 ? 'flex' : 'none';
+      nextBtn.innerHTML = 'Start →';
+    } else if (state.phase === 'predicting') {
+      var stepP = steps[state.step - 1];
+      stepTitle.textContent = stepP.title;
+      storyText.innerHTML = stepP.story + ' <span style="color: var(--color-text-secondary);">For each statement, predict the direction of change.</span>';
+      predPanel.style.display = 'block';
+      actionRow.style.display = 'none';
+      feedback.textContent = '';
+      noteBox.innerHTML = '';
+      renderPredictionPanel();
+    } else if (state.phase === 'revealed') {
+      var stepR = steps[state.step - 1];
+      stepTitle.textContent = stepR.title;
+      storyText.innerHTML = stepR.story;
+      predPanel.style.display = 'block';
+      actionRow.style.display = 'flex';
+      renderPredictionPanel();
+      submitBtn.disabled = true;
+
+      var stepCorrect = ['is','cf'].filter(function(r) {
+        return state.predictions[r] === stepR.key[r].dir;
+      }).length;
+      feedback.innerHTML = '<span style="color: var(--color-text-secondary);">You got ' + stepCorrect + ' of 2 on this step.</span>';
+
+      if (stepR.note) {
+        noteBox.innerHTML = '<div class="concept-note' + (stepR.flag ? ' flag' : '') + '">' + stepR.note + '</div>';
+      } else {
+        noteBox.innerHTML = '';
+      }
+
+      if (state.step === steps.length) {
+        nextBtn.innerHTML = 'Finish ✓';
+      } else {
+        nextBtn.innerHTML = 'Next transaction →';
+      }
+    }
+
+    // Balance sheet
+    document.getElementById('bs-cash').textContent = fmt(state.bs.cash);
+    document.getElementById('bs-ar').textContent = fmt(state.bs.ar);
+    document.getElementById('bs-prepaid').textContent = fmt(state.bs.prepaid);
+    document.getElementById('bs-equip').textContent = fmt(state.bs.equip);
+    document.getElementById('bs-salpay').textContent = fmt(state.bs.salpay);
+    document.getElementById('bs-unearned').textContent = fmt(state.bs.unearned);
+    document.getElementById('bs-cs').textContent = fmt(state.bs.cs);
+
+    var totex = state.is.salexp + state.is.rentexp + state.is.insexp + state.is.depexp;
+    var ni = state.is.rev - totex;
+    document.getElementById('bs-re').textContent = fmt(ni);
+
+    var ta = state.bs.cash + state.bs.ar + state.bs.prepaid + state.bs.equip;
+    var tle = state.bs.salpay + state.bs.unearned + state.bs.cs + ni;
+    document.getElementById('bs-ta').textContent = fmt(ta);
+    document.getElementById('bs-tle').textContent = fmt(tle);
+
+    var balDiv = document.getElementById('bs-balance');
+    if (Math.abs(ta - tle) < 0.5) {
+      balDiv.classList.remove('off');
+      balDiv.textContent = 'In balance ✓';
+    } else {
+      balDiv.classList.add('off');
+      balDiv.textContent = 'Off by ' + fmt(ta - tle);
+    }
+
+    // Income statement
+    document.getElementById('is-rev').textContent = fmt(state.is.rev);
+    document.getElementById('is-sal').textContent = fmt(-state.is.salexp);
+    document.getElementById('is-rent').textContent = fmt(-state.is.rentexp);
+    document.getElementById('is-ins').textContent = fmt(-state.is.insexp);
+    document.getElementById('is-dep').textContent = fmt(-state.is.depexp);
+    document.getElementById('is-totex').textContent = fmt(-totex);
+    document.getElementById('is-ni').textContent = fmt(ni);
+
+    // Cash flows
+    document.getElementById('cf-clients').textContent = fmt(state.cf.clients);
+    document.getElementById('cf-sal').textContent = fmt(state.cf.sal);
+    document.getElementById('cf-rent').textContent = fmt(state.cf.rent);
+    document.getElementById('cf-ins').textContent = fmt(state.cf.ins);
+    document.getElementById('cf-equip').textContent = fmt(state.cf.equip);
+    document.getElementById('cf-stock').textContent = fmt(state.cf.stock);
+    var netCash = state.cf.clients + state.cf.sal + state.cf.rent + state.cf.ins + state.cf.equip + state.cf.stock;
+    document.getElementById('cf-net').textContent = fmt(netCash);
+  }
+
+  document.getElementById('next-btn').addEventListener('click', function() {
+    if (state.phase === 'intro' && state.step === 0) {
+      state.step = 1;
+      state.phase = 'predicting';
+      state.predictions = { is: null, cf: null };
+    } else if (state.phase === 'revealed') {
+      if (state.step < steps.length) {
+        state.step++;
+        state.phase = 'predicting';
+        state.predictions = { is: null, cf: null };
+      } else {
+        state.phase = 'intro';
+        state.step = steps.length + 1;
+      }
+    }
+    render();
+  });
+
+  document.getElementById('submit-btn').addEventListener('click', function() {
+    if (state.phase !== 'predicting') return;
+    var step = steps[state.step - 1];
+    ['is','cf'].forEach(function(r) {
+      if (state.predictions[r] === step.key[r].dir) state.correct++;
+    });
+    state.answered++;
+    applyDelta(step.delta);
+    state.phase = 'revealed';
+    render();
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', function() {
+    state.step = 0;
+    state.phase = 'intro';
+    state.correct = 0;
+    state.answered = 0;
+    state.predictions = { is: null, cf: null };
+    state.bs = { cash: 0, ar: 0, prepaid: 0, equip: 0, salpay: 0, unearned: 0, cs: 0 };
+    state.is = { rev: 0, salexp: 0, rentexp: 0, insexp: 0, depexp: 0 };
+    state.cf = { clients: 0, sal: 0, rent: 0, ins: 0, equip: 0, stock: 0 };
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

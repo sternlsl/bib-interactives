@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial statements simulator — Yeo's coffee cart</title>
+<style>
+  :root {
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f5f4f0;
+    --color-bg-tertiary: #fafaf7;
+    --color-bg-info: #e6f1fb;
+    --color-bg-success: #eaf3de;
+    --color-bg-danger: #fcebeb;
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #5f5e5a;
+    --color-text-tertiary: #888780;
+    --color-text-info: #0c447c;
+    --color-text-success: #27500a;
+    --color-text-danger: #791f1f;
+    --color-border-tertiary: rgba(0, 0, 0, 0.12);
+    --color-border-secondary: rgba(0, 0, 0, 0.25);
+    --color-border-info: #378add;
+    --color-border-success: #639922;
+    --color-border-danger: #e24b4a;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--color-text-primary);
+    background: var(--color-bg-tertiary);
+    line-height: 1.5;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 16px 32px;
+  }
+  h1 { font-size: 22px; font-weight: 500; margin: 0 0 4px; }
+  .subtitle { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 16px; }
+
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 12px;
+    background: var(--color-bg-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--color-text-primary);
+    transition: all 0.15s;
+  }
+  button:hover:not(:disabled) { background: var(--color-bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .step-title { font-size: 18px; font-weight: 500; }
+  .step-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+  .controls { display: flex; gap: 8px; align-items: center; }
+  .score-pill {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    padding: 4px 10px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+  }
+  .step-counter {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    min-width: 48px;
+    text-align: center;
+  }
+
+  .story-card {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .story-text { font-size: 14px; line-height: 1.6; margin-bottom: 12px; }
+
+  .prediction-panel {
+    display: none;
+    background: var(--color-bg-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    margin-bottom: 10px;
+  }
+  .pred-header {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pred-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .pred-row:last-of-type { border-bottom: none; }
+  .pred-row-label { font-size: 13px; font-weight: 500; }
+  .pred-options { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .pred-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+    border: 0.5px solid var(--color-border-secondary);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 38px;
+    font-family: inherit;
+    color: var(--color-text-primary);
+  }
+  .pred-btn:hover:not(:disabled) { background: var(--color-bg-secondary); }
+  .pred-btn.selected {
+    background: var(--color-bg-info);
+    color: var(--color-text-info);
+    border-color: var(--color-border-info);
+  }
+  .pred-btn.correct {
+    background: var(--color-bg-success);
+    color: var(--color-text-success);
+    border-color: var(--color-border-success);
+  }
+  .pred-btn.wrong {
+    background: var(--color-bg-danger);
+    color: var(--color-text-danger);
+    border-color: var(--color-border-danger);
+  }
+  .pred-btn:disabled { cursor: default; opacity: 0.9; }
+  .pred-explain {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    flex-basis: 100%;
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  .submit-row {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .feedback-text { font-size: 13px; }
+
+  .statements-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .statement-card {
+    background: var(--color-bg-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+  }
+  .stmt-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    margin-bottom: 2px;
+  }
+  .stmt-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .stmt-section {
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .stmt-table {
+    width: 100%;
+    font-size: 12px;
+    margin-bottom: 8px;
+    border-collapse: collapse;
+  }
+  .stmt-table td {
+    padding: 2px 0;
+  }
+  .stmt-table td.amount {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .stmt-table tr.total td {
+    border-top: 0.5px solid var(--color-border-tertiary);
+    padding-top: 4px;
+    font-weight: 500;
+  }
+  .stmt-footer-note {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+  }
+  .bs-balance-pill {
+    margin-top: 8px;
+    font-size: 11px;
+    padding: 4px 6px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    background: var(--color-bg-success);
+    color: var(--color-text-success);
+  }
+  .bs-balance-pill.off {
+    background: var(--color-bg-danger);
+    color: var(--color-text-danger);
+  }
+
+  @media (max-width: 700px) {
+    .statements-grid { grid-template-columns: 1fr; }
+    .pred-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Financial statements simulator</h1>
+  <div class="subtitle">Scenario: Yeo's coffee cart — predict how each transaction flows through the three statements.</div>
+
+  <div class="header-row">
+    <div>
+      <div class="step-label">Current step</div>
+      <div id="step-title" class="step-title">Step 0 — Day one</div>
+    </div>
+    <div class="controls">
+      <span id="score-display" class="score-pill">Score: 0 / 0</span>
+      <span id="step-counter" class="step-counter">0 / 8</span>
+      <button id="reset-btn" title="Reset">↻ Reset</button>
+    </div>
+  </div>
+
+  <div class="story-card">
+    <div id="story-text" class="story-text">
+      Welcome! You'll start a coffee cart and predict how each transaction affects the three statements. Click <strong>Start</strong> to see the first transaction.
+    </div>
+
+    <div id="prediction-panel" class="prediction-panel">
+      <div class="pred-header">Your prediction</div>
+      <div id="pred-rows"></div>
+      <div class="submit-row">
+        <button id="submit-btn" disabled>Check answer</button>
+        <span id="feedback-text" class="feedback-text"></span>
+      </div>
+    </div>
+
+    <div id="action-row" style="display: flex; gap: 8px;">
+      <button id="next-btn">Start →</button>
+    </div>
+  </div>
+
+  <div class="statements-grid">
+
+    <div class="statement-card">
+      <div class="stmt-label">Balance sheet</div>
+      <div class="stmt-title">What we own & owe</div>
+
+      <div class="stmt-section">Assets</div>
+      <table class="stmt-table">
+        <tr><td>Cash</td><td id="bs-cash" class="amount">0</td></tr>
+        <tr><td>A/R</td><td id="bs-ar" class="amount">0</td></tr>
+        <tr><td>Inventory</td><td id="bs-inv" class="amount">0</td></tr>
+        <tr><td>Equipment</td><td id="bs-eq" class="amount">0</td></tr>
+        <tr class="total"><td>Total assets</td><td id="bs-ta" class="amount">0</td></tr>
+      </table>
+
+      <div class="stmt-section">Liabilities</div>
+      <table class="stmt-table">
+        <tr><td>A/P</td><td id="bs-ap" class="amount">0</td></tr>
+        <tr><td>Loan</td><td id="bs-loan" class="amount">0</td></tr>
+      </table>
+
+      <div class="stmt-section">Equity</div>
+      <table class="stmt-table">
+        <tr><td>Common stock</td><td id="bs-cs" class="amount">0</td></tr>
+        <tr><td>Retained earn.</td><td id="bs-re" class="amount">0</td></tr>
+        <tr class="total"><td>Total L + E</td><td id="bs-tle" class="amount">0</td></tr>
+      </table>
+      <div id="bs-balance" class="bs-balance-pill">In balance ✓</div>
+    </div>
+
+    <div class="statement-card">
+      <div class="stmt-label">Income statement</div>
+      <div class="stmt-title">Did we earn a profit?</div>
+
+      <table class="stmt-table">
+        <tr><td>Revenue</td><td id="is-rev" class="amount">0</td></tr>
+        <tr><td>COGS</td><td id="is-cogs" class="amount">0</td></tr>
+        <tr class="total"><td>Gross profit</td><td id="is-gp" class="amount">0</td></tr>
+        <tr><td>Rent expense</td><td id="is-rent" class="amount">0</td></tr>
+        <tr><td>Depreciation</td><td id="is-dep" class="amount">0</td></tr>
+        <tr><td>Interest exp.</td><td id="is-int" class="amount">0</td></tr>
+        <tr class="total"><td>Net income</td><td id="is-ni" class="amount">0</td></tr>
+      </table>
+      <div class="stmt-footer-note">Net income flows into retained earnings on the balance sheet.</div>
+    </div>
+
+    <div class="statement-card">
+      <div class="stmt-label">Cash flows</div>
+      <div class="stmt-title">Where did cash move?</div>
+
+      <div class="stmt-section">Operating</div>
+      <table class="stmt-table">
+        <tr><td>From customers</td><td id="cf-op-rev" class="amount">0</td></tr>
+        <tr><td>To suppliers</td><td id="cf-op-sup" class="amount">0</td></tr>
+        <tr><td>Operating exp.</td><td id="cf-op-exp" class="amount">0</td></tr>
+        <tr><td>Interest paid</td><td id="cf-op-int" class="amount">0</td></tr>
+      </table>
+
+      <div class="stmt-section">Investing</div>
+      <table class="stmt-table">
+        <tr><td>Equipment</td><td id="cf-inv-eq" class="amount">0</td></tr>
+      </table>
+
+      <div class="stmt-section">Financing</div>
+      <table class="stmt-table">
+        <tr><td>Stock issued</td><td id="cf-fin-st" class="amount">0</td></tr>
+        <tr><td>Loan proceeds</td><td id="cf-fin-loan" class="amount">0</td></tr>
+      </table>
+
+      <table class="stmt-table">
+        <tr class="total"><td>Net Δ cash</td><td id="cf-net" class="amount">0</td></tr>
+      </table>
+      <div class="stmt-footer-note">Net change must equal the cash balance on the balance sheet.</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var steps = [
+    {
+      title: "Step 1 — Issue stock for cash",
+      story: "Yeo invests $10,000 of his own money in exchange for stock in the new company.",
+      key: {
+        bs: { dir: 1, why: "Cash +$10,000 (asset) and Common stock +$10,000 (equity). Both sides rise — balance sheet expands." },
+        is: { dir: 0, why: "An owner contribution is not revenue. The IS only records earnings from operations." },
+        cf: { dir: 1, why: "+$10,000 cash in from financing activities (stock issuance)." }
+      },
+      delta: { cash: 10000, cs: 10000, cf_fin_st: 10000 }
+    },
+    {
+      title: "Step 2 — Take a bank loan",
+      story: "The bank lends the business $5,000 cash. (Ignore interest for this step.)",
+      key: {
+        bs: { dir: 1, why: "Cash +$5,000 (asset) and Loan payable +$5,000 (liability). Assets and liabilities both rise." },
+        is: { dir: 0, why: "Borrowing is not income — you got cash, but you also owe it back." },
+        cf: { dir: 1, why: "+$5,000 cash in from financing activities (loan proceeds)." }
+      },
+      delta: { cash: 5000, loan: 5000, cf_fin_loan: 5000 }
+    },
+    {
+      title: "Step 3 — Buy equipment for cash",
+      story: "You buy a coffee cart and espresso machine for $8,000 cash. It will last 4 years.",
+      key: {
+        bs: { dir: 0, why: "Asset swap: Cash −$8,000, Equipment +$8,000. Total assets unchanged." },
+        is: { dir: 0, why: "Buying a long-lived asset isn't an expense — depreciation will hit the IS over the next 48 months." },
+        cf: { dir: -1, why: "−$8,000 cash out in investing activities (purchase of equipment)." }
+      },
+      delta: { cash: -8000, eq: 8000, cf_inv_eq: -8000 }
+    },
+    {
+      title: "Step 4 — Buy inventory on credit",
+      story: "You order $1,500 of coffee beans and cups from a supplier — pay later (30-day terms).",
+      key: {
+        bs: { dir: 1, why: "Inventory +$1,500 (asset) and Accounts payable +$1,500 (liability). Both sides grow." },
+        is: { dir: 0, why: "Inventory is an asset until it's sold. No expense yet — the cost will become COGS at sale." },
+        cf: { dir: 0, why: "No cash moved. You promised to pay later." }
+      },
+      delta: { inv: 1500, ap: 1500 }
+    },
+    {
+      title: "Step 5 — Sell coffee for cash",
+      story: "You sell coffee for $3,000 cash this month. The beans/cups used cost $900 (taken from inventory).",
+      key: {
+        bs: { dir: 1, why: "Cash +$3,000, Inventory −$900, Retained earnings +$2,100. Net assets up $2,100." },
+        is: { dir: 1, why: "Revenue $3,000 − COGS $900 = Net income +$2,100. This is where profit shows up." },
+        cf: { dir: 1, why: "+$3,000 cash in from customers (operating). No cash to suppliers yet — that came on credit." }
+      },
+      delta: { cash: 3000, inv: -900, rev: 3000, cogs: 900, cf_op_rev: 3000 }
+    },
+    {
+      title: "Step 6 — Pay rent in cash",
+      story: "You pay $500 cash for this month's rent at the farmer's market spot.",
+      key: {
+        bs: { dir: -1, why: "Cash −$500 (asset) and Retained earnings −$500 (equity, via net income). Both sides drop." },
+        is: { dir: -1, why: "Rent expense $500 reduces net income by $500." },
+        cf: { dir: -1, why: "−$500 cash out in operating activities." }
+      },
+      delta: { cash: -500, rent: 500, cf_op_exp: -500 }
+    },
+    {
+      title: "Step 7 — Record depreciation",
+      story: "End of month: the $8,000 cart loses value from use. Monthly depreciation is $8,000 ÷ 48 months = $167.",
+      key: {
+        bs: { dir: -1, why: "Equipment (net) −$167 and Retained earnings −$167. Assets and equity both decline." },
+        is: { dir: -1, why: "Depreciation expense $167 reduces net income." },
+        cf: { dir: 0, why: "Depreciation is a non-cash expense — no cash moved. This is the classic IS-vs-SCF gap." }
+      },
+      delta: { eq: -167, dep: 167 }
+    },
+    {
+      title: "Step 8 — Pay the supplier",
+      story: "30 days are up. You pay the $1,500 you owed for inventory.",
+      key: {
+        bs: { dir: -1, why: "Cash −$1,500 (asset) and Accounts payable −$1,500 (liability). Both sides shrink." },
+        is: { dir: 0, why: "The expense was already recorded when inventory was sold as COGS. Paying the bill is just settling a liability." },
+        cf: { dir: -1, why: "−$1,500 cash out to suppliers (operating)." }
+      },
+      delta: { cash: -1500, ap: -1500, cf_op_sup: -1500 }
+    }
+  ];
+
+  var state = {
+    step: 0,
+    phase: 'intro',
+    correct: 0,
+    answered: 0,
+    predictions: { is: null, cf: null },
+    bs: { cash: 0, ar: 0, inv: 0, eq: 0, ap: 0, loan: 0, cs: 0 },
+    is: { rev: 0, cogs: 0, rent: 0, dep: 0, int: 0 },
+    cf: { op_rev: 0, op_sup: 0, op_exp: 0, op_int: 0, inv_eq: 0, fin_st: 0, fin_loan: 0 }
+  };
+
+  function applyDelta(d) {
+    if (d.cash) state.bs.cash += d.cash;
+    if (d.ar) state.bs.ar += d.ar;
+    if (d.inv) state.bs.inv += d.inv;
+    if (d.eq) state.bs.eq += d.eq;
+    if (d.ap) state.bs.ap += d.ap;
+    if (d.loan) state.bs.loan += d.loan;
+    if (d.cs) state.bs.cs += d.cs;
+    if (d.rev) state.is.rev += d.rev;
+    if (d.cogs) state.is.cogs += d.cogs;
+    if (d.rent) state.is.rent += d.rent;
+    if (d.dep) state.is.dep += d.dep;
+    if (d.int) state.is.int += d.int;
+    if (d.cf_op_rev) state.cf.op_rev += d.cf_op_rev;
+    if (d.cf_op_sup) state.cf.op_sup += d.cf_op_sup;
+    if (d.cf_op_exp) state.cf.op_exp += d.cf_op_exp;
+    if (d.cf_op_int) state.cf.op_int += d.cf_op_int;
+    if (d.cf_inv_eq) state.cf.inv_eq += d.cf_inv_eq;
+    if (d.cf_fin_st) state.cf.fin_st += d.cf_fin_st;
+    if (d.cf_fin_loan) state.cf.fin_loan += d.cf_fin_loan;
+  }
+
+  function fmt(n) {
+    n = Math.round(n);
+    if (n === 0) return "—";
+    var s = Math.abs(n).toLocaleString();
+    return n < 0 ? "(" + s + ")" : s;
+  }
+
+  function dirLabel(d) {
+    if (d === 1) return "Increases";
+    if (d === -1) return "Decreases";
+    return "No change";
+  }
+
+  function renderPredictionPanel() {
+    var rows = [
+      { id: 'is', label: 'Income statement' },
+      { id: 'cf', label: 'Cash flows' }
+    ];
+    var step = steps[state.step - 1];
+    var container = document.getElementById('pred-rows');
+    container.innerHTML = '';
+
+    rows.forEach(function(row) {
+      var wrap = document.createElement('div');
+      wrap.className = 'pred-row';
+
+      var label = document.createElement('div');
+      label.className = 'pred-row-label';
+      label.textContent = row.label;
+      wrap.appendChild(label);
+
+      var opts = document.createElement('div');
+      opts.className = 'pred-options';
+
+      [{ v: 1, t: '↑ Up' }, { v: 0, t: '— No change' }, { v: -1, t: '↓ Down' }].forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.className = 'pred-btn';
+        btn.textContent = opt.t;
+        btn.dataset.value = opt.v;
+        btn.dataset.row = row.id;
+
+        var selected = state.predictions[row.id] === opt.v;
+        if (state.phase === 'revealed') {
+          var correctVal = step.key[row.id].dir;
+          if (opt.v === correctVal) btn.classList.add('correct');
+          else if (selected) btn.classList.add('wrong');
+          btn.disabled = true;
+        } else {
+          if (selected) btn.classList.add('selected');
+          btn.addEventListener('click', function() {
+            state.predictions[row.id] = opt.v;
+            render();
+          });
+        }
+        opts.appendChild(btn);
+      });
+
+      if (state.phase === 'revealed') {
+        var explain = document.createElement('div');
+        explain.className = 'pred-explain';
+        var correctVal2 = step.key[row.id].dir;
+        var userVal = state.predictions[row.id];
+        var isCorrect = userVal === correctVal2;
+        var mark = isCorrect
+          ? '<span style="color: var(--color-text-success); font-weight: 500;">✓ Correct.</span>'
+          : '<span style="color: var(--color-text-danger); font-weight: 500;">✗ Correct answer: ' + dirLabel(correctVal2) + '.</span>';
+        explain.innerHTML = mark + ' ' + step.key[row.id].why;
+        opts.appendChild(explain);
+      }
+      wrap.appendChild(opts);
+      container.appendChild(wrap);
+    });
+
+    var allChosen = state.predictions.is !== null && state.predictions.cf !== null;
+    document.getElementById('submit-btn').disabled = state.phase !== 'predicting' || !allChosen;
+  }
+
+  function render() {
+    var total = steps.length;
+    document.getElementById('step-counter').textContent = state.step + ' / ' + total;
+    document.getElementById('score-display').textContent = 'Score: ' + state.correct + ' / ' + (state.answered * 2);
+
+    var storyText = document.getElementById('story-text');
+    var stepTitle = document.getElementById('step-title');
+    var predPanel = document.getElementById('prediction-panel');
+    var actionRow = document.getElementById('action-row');
+    var nextBtn = document.getElementById('next-btn');
+    var submitBtn = document.getElementById('submit-btn');
+    var feedback = document.getElementById('feedback-text');
+
+    if (state.phase === 'intro') {
+      stepTitle.textContent = state.step === 0 ? "Step 0 — Day one" : "Done!";
+      storyText.innerHTML = state.step === 0
+        ? "Welcome! You'll start a coffee cart and predict how each transaction affects the three statements. Click <strong>Start</strong> to see the first transaction."
+        : "All 8 transactions complete. Final score: <strong>" + state.correct + " / " + (state.answered * 2) + "</strong>. Review the statements below or hit reset to try again.";
+      predPanel.style.display = 'none';
+      actionRow.style.display = state.step === 0 ? 'flex' : 'none';
+      nextBtn.innerHTML = 'Start →';
+    } else if (state.phase === 'predicting') {
+      var stepP = steps[state.step - 1];
+      stepTitle.textContent = stepP.title;
+      storyText.innerHTML = stepP.story + ' <span style="color: var(--color-text-secondary);">For each statement, predict the direction of change.</span>';
+      predPanel.style.display = 'block';
+      actionRow.style.display = 'none';
+      feedback.textContent = '';
+      renderPredictionPanel();
+    } else if (state.phase === 'revealed') {
+      var stepR = steps[state.step - 1];
+      stepTitle.textContent = stepR.title;
+      storyText.innerHTML = stepR.story;
+      predPanel.style.display = 'block';
+      actionRow.style.display = 'flex';
+      renderPredictionPanel();
+      submitBtn.disabled = true;
+
+      var stepCorrect = ['is','cf'].filter(function(r) {
+        return state.predictions[r] === stepR.key[r].dir;
+      }).length;
+      feedback.innerHTML = '<span style="color: var(--color-text-secondary);">You got ' + stepCorrect + ' of 2 on this step.</span>';
+
+      if (state.step === steps.length) {
+        nextBtn.innerHTML = 'Finish ✓';
+      } else {
+        nextBtn.innerHTML = 'Next transaction →';
+      }
+    }
+
+    document.getElementById('bs-cash').textContent = fmt(state.bs.cash);
+    document.getElementById('bs-ar').textContent = fmt(state.bs.ar);
+    document.getElementById('bs-inv').textContent = fmt(state.bs.inv);
+    document.getElementById('bs-eq').textContent = fmt(state.bs.eq);
+    document.getElementById('bs-ap').textContent = fmt(state.bs.ap);
+    document.getElementById('bs-loan').textContent = fmt(state.bs.loan);
+    document.getElementById('bs-cs').textContent = fmt(state.bs.cs);
+
+    var ni = state.is.rev - state.is.cogs - state.is.rent - state.is.dep - state.is.int;
+    var gp = state.is.rev - state.is.cogs;
+    document.getElementById('bs-re').textContent = fmt(ni);
+
+    var ta = state.bs.cash + state.bs.ar + state.bs.inv + state.bs.eq;
+    var tle = state.bs.ap + state.bs.loan + state.bs.cs + ni;
+    document.getElementById('bs-ta').textContent = fmt(ta);
+    document.getElementById('bs-tle').textContent = fmt(tle);
+
+    var balDiv = document.getElementById('bs-balance');
+    if (Math.abs(ta - tle) < 0.5) {
+      balDiv.classList.remove('off');
+      balDiv.textContent = 'In balance ✓';
+    } else {
+      balDiv.classList.add('off');
+      balDiv.textContent = 'Off by ' + fmt(ta - tle);
+    }
+
+    document.getElementById('is-rev').textContent = fmt(state.is.rev);
+    document.getElementById('is-cogs').textContent = fmt(-state.is.cogs);
+    document.getElementById('is-gp').textContent = fmt(gp);
+    document.getElementById('is-rent').textContent = fmt(-state.is.rent);
+    document.getElementById('is-dep').textContent = fmt(-state.is.dep);
+    document.getElementById('is-int').textContent = fmt(-state.is.int);
+    document.getElementById('is-ni').textContent = fmt(ni);
+
+    document.getElementById('cf-op-rev').textContent = fmt(state.cf.op_rev);
+    document.getElementById('cf-op-sup').textContent = fmt(state.cf.op_sup);
+    document.getElementById('cf-op-exp').textContent = fmt(state.cf.op_exp);
+    document.getElementById('cf-op-int').textContent = fmt(state.cf.op_int);
+    document.getElementById('cf-inv-eq').textContent = fmt(state.cf.inv_eq);
+    document.getElementById('cf-fin-st').textContent = fmt(state.cf.fin_st);
+    document.getElementById('cf-fin-loan').textContent = fmt(state.cf.fin_loan);
+    var netCash = state.cf.op_rev + state.cf.op_sup + state.cf.op_exp + state.cf.op_int + state.cf.inv_eq + state.cf.fin_st + state.cf.fin_loan;
+    document.getElementById('cf-net').textContent = fmt(netCash);
+  }
+
+  document.getElementById('next-btn').addEventListener('click', function() {
+    if (state.phase === 'intro' && state.step === 0) {
+      state.step = 1;
+      state.phase = 'predicting';
+      state.predictions = { is: null, cf: null };
+    } else if (state.phase === 'revealed') {
+      if (state.step < steps.length) {
+        state.step++;
+        state.phase = 'predicting';
+        state.predictions = { is: null, cf: null };
+      } else {
+        state.phase = 'intro';
+        state.step = steps.length + 1;
+      }
+    }
+    render();
+  });
+
+  document.getElementById('submit-btn').addEventListener('click', function() {
+    if (state.phase !== 'predicting') return;
+    var step = steps[state.step - 1];
+    ['is','cf'].forEach(function(r) {
+      if (state.predictions[r] === step.key[r].dir) state.correct++;
+    });
+    state.answered++;
+    applyDelta(step.delta);
+    state.phase = 'revealed';
+    render();
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', function() {
+    state.step = 0;
+    state.phase = 'intro';
+    state.correct = 0;
+    state.answered = 0;
+    state.predictions = { is: null, cf: null };
+    state.bs = { cash: 0, ar: 0, inv: 0, eq: 0, ap: 0, loan: 0, cs: 0 };
+    state.is = { rev: 0, cogs: 0, rent: 0, dep: 0, int: 0 };
+    state.cf = { op_rev: 0, op_sup: 0, op_exp: 0, op_int: 0, inv_eq: 0, fin_st: 0, fin_loan: 0 };
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

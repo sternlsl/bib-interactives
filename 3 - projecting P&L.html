@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Project next month's P&amp;L</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F6F7F9; --surface:#FFFFFF; --surface-2:#EEF1F4;
+    --ink:#16202B; --ink-soft:#566273; --ink-faint:#8893A0;
+    --line:rgba(22,32,43,.10); --line-strong:rgba(22,32,43,.24);
+    --brand:#0F6E56; --brand-soft:#E2F0EB;
+    --profit:#2E7D32; --loss:#B23B3B;
+    --fixed:#1F5FA5; --fixed-bg:#E8F0FA;
+    --variable:#9C6A12; --variable-bg:#FAF0DC;
+    --radius:12px; --radius-sm:8px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#10151B; --surface:#19212A; --surface-2:#222C36;
+      --ink:#E7ECF1; --ink-soft:#A2ADB9; --ink-faint:#74808D;
+      --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.22);
+      --brand:#46BF98; --brand-soft:rgba(15,110,86,.20);
+      --profit:#69C875; --loss:#E27D7D;
+      --fixed:#6FA8E8; --fixed-bg:rgba(31,95,165,.20);
+      --variable:#DDAE5A; --variable-bg:rgba(156,106,18,.22);
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif; font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:840px; margin:0 auto; padding:clamp(24px,5vw,56px) clamp(16px,4vw,32px) 80px;}
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; letter-spacing:-.01em;}
+
+  /* masthead */
+  .eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--brand); font-weight:500; margin:0 0 14px;}
+  h1{font-family:"Fraunces",Georgia,serif; font-weight:500; font-size:clamp(30px,6vw,46px); line-height:1.08; margin:0 0 14px; letter-spacing:-.01em;}
+  .lede{font-size:17px; color:var(--ink-soft); max-width:54ch; margin:0 0 8px;}
+
+  /* steps */
+  .step{margin-top:40px;}
+  .step-head{display:flex; align-items:baseline; gap:12px; margin-bottom:14px;}
+  .step-no{font-family:"Fraunces",serif; font-size:15px; color:var(--brand); font-weight:500; min-width:20px;}
+  .step-title{font-size:15px; font-weight:500; letter-spacing:.01em;}
+  .step-hint{font-size:14px; color:var(--ink-faint); margin-left:auto;}
+
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:22px 24px;}
+
+  label.field-label{display:block; font-size:13px; color:var(--ink-soft); margin-bottom:6px;}
+  input[type=number],input[type=text]{
+    width:100%; height:42px; padding:0 12px; font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums;
+    font-size:15px; color:var(--ink); background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--radius-sm);
+    transition:border-color .12s, box-shadow .12s;
+  }
+  input[type=text]{font-family:"Inter",sans-serif;}
+  input:focus{outline:none; border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-soft);}
+  .month-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:16px;}
+
+  .method-row{display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+  .method-btn{
+    flex:1; min-width:160px; height:44px; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-family:inherit; font-size:14px; font-weight:500; color:var(--ink-soft);
+    background:var(--surface); border:1px solid var(--line-strong); border-radius:var(--radius-sm); cursor:pointer;
+    transition:all .12s;
+  }
+  .method-btn:hover{border-color:var(--brand);}
+  .method-btn.active{color:var(--brand); border-color:var(--brand); background:var(--brand-soft);}
+  .method-btn svg{width:16px;height:16px;}
+
+  .readout{background:var(--surface-2); border-radius:var(--radius-sm); padding:14px 16px; display:flex; align-items:baseline; justify-content:space-between; gap:12px;}
+  .readout .lbl{font-size:13px; color:var(--ink-soft);}
+  .readout .sub{font-size:11px; color:var(--ink-faint);}
+  .readout .big{font-size:26px; font-weight:500; color:var(--brand);}
+
+  /* expense table */
+  .exp-headrow{display:flex; gap:12px; font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px; padding:0 2px;}
+  .exp-row{display:flex; gap:12px; align-items:center; margin-bottom:10px;}
+  .exp-row .nm{flex:2; min-width:0;}
+  .exp-type{flex:1.4; display:flex; gap:5px;}
+  .type-btn{flex:1; height:36px; font-family:inherit; font-size:12px; font-weight:500; border-radius:var(--radius-sm); cursor:pointer; background:transparent; color:var(--ink-faint); border:1px solid var(--line); transition:all .1s;}
+  .type-btn.on-fixed{background:var(--fixed-bg); color:var(--fixed); border-color:var(--fixed);}
+  .type-btn.on-var{background:var(--variable-bg); color:var(--variable); border-color:var(--variable);}
+  .exp-amt{flex:1.1; display:flex; align-items:center; gap:3px;}
+  .exp-amt .sigil{font-family:"JetBrains Mono",monospace; font-size:14px; color:var(--ink-faint);}
+  .exp-amt input{height:36px; text-align:right;}
+  .del-btn{width:26px; height:36px; padding:0; border:none; background:transparent; color:var(--ink-faint); cursor:pointer; border-radius:6px; font-size:18px; line-height:1;}
+  .del-btn:hover{color:var(--loss); background:var(--surface-2);}
+  .add-btn{width:100%; height:42px; margin-top:6px; font-family:inherit; font-size:14px; font-weight:500; color:var(--ink-soft); background:var(--surface); border:1px dashed var(--line-strong); border-radius:var(--radius-sm); cursor:pointer;}
+  .add-btn:hover{border-color:var(--brand); color:var(--brand);}
+  .legend{font-size:12px; color:var(--ink-faint); margin-top:14px; line-height:1.6;}
+  .legend b{font-weight:500;} .legend .f{color:var(--fixed);} .legend .v{color:var(--variable);}
+
+  /* ledger statement */
+  .ledger{width:100%; border-collapse:collapse; font-size:15px;}
+  .ledger td{padding:9px 0;}
+  .ledger td.amt{text-align:right; font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums;}
+  .ledger .lbl-soft{color:var(--ink-soft);}
+  .ledger tr.subtotal td{border-top:1px solid var(--line-strong); font-weight:500;}
+  .ledger tr.total td{border-top:1px solid var(--line-strong); padding-top:10px; font-weight:500; font-size:16px;}
+  .ledger tr.total td.amt{box-shadow:inset 0 -3px 0 -1px var(--line-strong); padding-bottom:6px;}
+  .pos{color:var(--profit);} .neg{color:var(--loss);} .rev{color:var(--brand);} .fx{color:var(--fixed);} .vr{color:var(--variable);}
+
+  /* stat cards */
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px;}
+  .stat{background:var(--surface-2); border-radius:var(--radius-sm); padding:16px;}
+  .stat .k{font-size:12px; color:var(--ink-soft);}
+  .stat .v{font-size:23px; font-weight:500; margin:4px 0 2px; font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums;}
+  .stat .d{font-size:11px; color:var(--ink-faint); line-height:1.45;}
+
+  /* what-if */
+  .slider-block{margin-bottom:16px;}
+  .slider-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;}
+  .slider-top label{font-size:14px; color:var(--ink-soft);}
+  .slider-top .val{font-size:14px; font-weight:500; font-family:"JetBrains Mono",monospace;}
+  input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:5px; border-radius:3px; background:var(--surface-2); cursor:pointer;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--brand); border:3px solid var(--surface); box-shadow:0 0 0 1px var(--line-strong); cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:18px; height:18px; border-radius:50%; background:var(--brand); border:3px solid var(--surface); cursor:pointer;}
+  input[type=range]:focus{outline:none;}
+  input[type=range]:focus::-webkit-slider-thumb{box-shadow:0 0 0 3px var(--brand-soft);}
+
+  .compare{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:4px;}
+  .col-card{background:var(--surface-2); border-radius:var(--radius-sm); padding:14px 16px;}
+  .col-card .ctitle{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); font-weight:500; margin-bottom:8px;}
+  .col-card table{width:100%; border-collapse:collapse; font-size:13px;}
+  .col-card td{padding:5px 0; color:var(--ink-soft);}
+  .col-card td.amt{text-align:right; font-family:"JetBrains Mono",monospace; font-variant-numeric:tabular-nums; color:var(--ink);}
+  .col-card tr.net td{border-top:1px solid var(--line-strong); padding-top:7px; font-weight:500;}
+  .note{margin-top:14px; font-size:13px; color:var(--ink-soft); line-height:1.55; background:var(--brand-soft); border-radius:var(--radius-sm); padding:12px 14px;}
+
+  .foot{margin-top:48px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--ink-faint); display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  .foot button{background:none; border:none; color:var(--brand); font-family:inherit; font-size:13px; cursor:pointer; padding:0; text-decoration:underline; text-underline-offset:3px;}
+
+  @media (max-width:600px){
+    .stats{grid-template-columns:1fr;}
+    .compare{grid-template-columns:1fr;}
+    .month-grid{grid-template-columns:1fr;}
+    .exp-headrow{display:none;}
+    .exp-row{flex-wrap:wrap; padding-bottom:10px; border-bottom:1px solid var(--line);}
+    .exp-row .nm{flex:1 1 100%;}
+    .exp-type{flex:1 1 auto;} .exp-amt{flex:1 1 auto;}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <p class="eyebrow">P&amp;L projection trainer</p>
+  <h1>Project next month's profit.</h1>
+  <p class="lede">Start from the last three months of sales, decide which costs hold steady and which move with revenue, then stress-test the result before the month even begins.</p>
+
+  <!-- step 1 -->
+  <section class="step">
+    <div class="step-head"><span class="step-no num">01</span><span class="step-title">Project next month's revenue</span></div>
+    <div class="card">
+      <div class="month-grid">
+        <div><label class="field-label">3 months ago</label><input type="number" id="m1" value="18000" /></div>
+        <div><label class="field-label">2 months ago</label><input type="number" id="m2" value="19500" /></div>
+        <div><label class="field-label">Last month</label><input type="number" id="m3" value="21000" /></div>
+      </div>
+      <div class="method-row">
+        <button class="method-btn active" id="btn-avg" data-method="average">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg>
+          3-month average
+        </button>
+        <button class="method-btn" id="btn-trend" data-method="trend">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M21 3h-5M21 3v5"/></svg>
+          Follow the trend
+        </button>
+        <button class="method-btn" id="btn-manual" data-method="manual">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          Enter my own
+        </button>
+      </div>
+      <div id="manual-wrap" style="display:none; margin-bottom:16px;">
+        <label class="field-label" for="manual-rev">Your projected revenue for next month</label>
+        <input type="number" id="manual-rev" value="20000" />
+      </div>
+      <div class="readout">
+        <div><div class="lbl">Projected revenue</div><div class="sub" id="rev-method">3-month average</div></div>
+        <div class="big num" id="proj-rev">$19,500</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- step 2 -->
+  <section class="step">
+    <div class="step-head"><span class="step-no num">02</span><span class="step-title">Classify each expense</span></div>
+    <div class="card">
+      <div class="exp-headrow">
+        <span style="flex:2;">Expense</span><span style="flex:1.4; text-align:center;">Type</span>
+        <span style="flex:1.1; text-align:right;">Amount</span><span style="width:26px;"></span>
+      </div>
+      <div id="exp-rows"></div>
+      <button class="add-btn" id="add-exp">+ Add expense</button>
+      <p class="legend">
+        <b class="f">Fixed</b> — a dollar amount that stays the same no matter what you sell (rent, salaries).<br>
+        <b class="v">Variable</b> — a percentage of revenue that rises and falls with sales (ingredients, card fees).
+      </p>
+    </div>
+  </section>
+
+  <!-- step 3 -->
+  <section class="step">
+    <div class="step-head"><span class="step-no num">03</span><span class="step-title">Read the projected P&amp;L</span></div>
+    <div class="card">
+      <table class="ledger"><tbody id="pnl-body"></tbody></table>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">Contribution margin</div><div class="v" id="cm-pct">—</div><div class="d">of every sales dollar left after variable costs</div></div>
+      <div class="stat"><div class="k">Break-even revenue</div><div class="v" id="be-rev">—</div><div class="d">sales needed to cover every cost</div></div>
+      <div class="stat"><div class="k">Margin of safety</div><div class="v" id="mos">—</div><div class="d">how far sales can fall before a loss</div></div>
+    </div>
+  </section>
+
+  <!-- step 4 -->
+  <section class="step">
+    <div class="step-head"><span class="step-no num">04</span><span class="step-title">What if&hellip;?</span></div>
+    <div class="card">
+      <div class="slider-block">
+        <div class="slider-top"><label for="rev-adj">Revenue vs. projection</label><span class="val rev" id="rev-adj-out">+0%</span></div>
+        <input type="range" id="rev-adj" min="-40" max="40" step="5" value="0" />
+      </div>
+      <div class="slider-block">
+        <div class="slider-top"><label for="fix-adj">Fixed costs vs. plan</label><span class="val fx" id="fix-adj-out">+0%</span></div>
+        <input type="range" id="fix-adj" min="-40" max="40" step="5" value="0" />
+      </div>
+      <div class="slider-block">
+        <div class="slider-top"><label for="var-adj">Variable costs vs. plan</label><span class="val vr" id="var-adj-out">+0%</span></div>
+        <input type="range" id="var-adj" min="-40" max="40" step="5" value="0" />
+      </div>
+      <div class="compare">
+        <div class="col-card"><div class="ctitle">Base case</div><table><tbody id="base-col"></tbody></table></div>
+        <div class="col-card"><div class="ctitle">What-if scenario</div><table><tbody id="scen-col"></tbody></table></div>
+      </div>
+      <p class="note" id="leverage-note"></p>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>A teaching tool — every figure is editable and nothing is saved.</span>
+    <button id="reset">Reset to example</button>
+  </div>
+
+</main>
+
+<script>
+(function(){
+  var fmt = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  var method = 'average';
+  var SAMPLE = [
+    {name:'Ingredients & supplies', type:'variable', val:30},
+    {name:'Card processing fees',   type:'variable', val:3},
+    {name:'Hourly staff wages',     type:'variable', val:20},
+    {name:'Rent',                   type:'fixed',    val:3200},
+    {name:'Manager salary',         type:'fixed',    val:3800},
+    {name:'Insurance & utilities',  type:'fixed',    val:1100}
+  ];
+  var expenses = SAMPLE.map(function(e){return {name:e.name,type:e.type,val:e.val};});
+
+  var $ = function(id){return document.getElementById(id);};
+
+  function projectRevenue(){
+    if(method==='manual') return Math.max(0, +$('manual-rev').value||0);
+    var a=+$('m1').value||0, b=+$('m2').value||0, c=+$('m3').value||0;
+    if(method==='trend'){
+      var avgChange=((b-a)+(c-b))/2;
+      return Math.max(0, c+avgChange);
+    }
+    return (a+b+c)/3;
+  }
+
+  function renderExpenses(){
+    var host=$('exp-rows'); host.innerHTML='';
+    expenses.forEach(function(e,i){
+      var row=document.createElement('div'); row.className='exp-row';
+
+      var name=document.createElement('input'); name.type='text'; name.className='nm'; name.value=e.name;
+      name.oninput=function(){ e.name=name.value; computeAll(); };
+
+      var typeWrap=document.createElement('div'); typeWrap.className='exp-type';
+      [['fixed','Fixed','on-fixed'],['variable','Var','on-var']].forEach(function(t){
+        var b=document.createElement('button'); b.type='button'; b.className='type-btn'+(e.type===t[0]?' '+t[2]:''); b.textContent=t[1];
+        b.onclick=function(){ e.type=t[0]; renderExpenses(); computeAll(); };
+        typeWrap.appendChild(b);
+      });
+
+      var amtWrap=document.createElement('div'); amtWrap.className='exp-amt';
+      var amt=document.createElement('input'); amt.type='number'; amt.value=e.val;
+      amt.oninput=function(){ e.val=+amt.value||0; computeAll(); };
+      var sig=document.createElement('span'); sig.className='sigil'; sig.textContent = e.type==='fixed'?'$':'%';
+      if(e.type==='fixed'){ amtWrap.appendChild(sig); amtWrap.appendChild(amt); }
+      else { amtWrap.appendChild(amt); amtWrap.appendChild(sig); }
+
+      var del=document.createElement('button'); del.type='button'; del.className='del-btn'; del.innerHTML='&times;';
+      del.setAttribute('aria-label','Remove '+e.name);
+      del.onclick=function(){ expenses.splice(i,1); renderExpenses(); computeAll(); };
+
+      row.appendChild(name); row.appendChild(typeWrap); row.appendChild(amtWrap); row.appendChild(del);
+      host.appendChild(row);
+    });
+  }
+
+  function pnl(rev, fixedMult, varMult){
+    var varTotal=0, fixedTotal=0;
+    expenses.forEach(function(e){
+      if(e.type==='variable') varTotal += rev*(e.val/100)*varMult;
+      else fixedTotal += e.val*fixedMult;
+    });
+    var cm=rev-varTotal;
+    return {rev:rev, varTotal:varTotal, cm:cm, fixedTotal:fixedTotal, net:cm-fixedTotal, cmRatio: rev>0?cm/rev:0};
+  }
+
+  function row(label,val,cls,opt){
+    opt=opt||{};
+    var tr=document.createElement('tr'); if(opt.cls) tr.className=opt.cls;
+    tr.innerHTML='<td class="'+(opt.bold?'':'lbl-soft')+'">'+label+'</td><td class="amt '+(cls||'')+'">'+val+'</td>';
+    return tr;
+  }
+  function mini(tb,label,val,cls,net){
+    var tr=document.createElement('tr'); if(net) tr.className='net';
+    tr.innerHTML='<td>'+label+'</td><td class="amt '+(cls||'')+'">'+val+'</td>';
+    tb.appendChild(tr);
+  }
+  function fillCol(id,p){
+    var tb=$(id); tb.innerHTML='';
+    mini(tb,'Revenue', fmt.format(Math.round(p.rev)),'rev');
+    mini(tb,'Variable', '\u2212'+fmt.format(Math.round(p.varTotal)),'vr');
+    mini(tb,'Fixed', '\u2212'+fmt.format(Math.round(p.fixedTotal)),'fx');
+    mini(tb, p.net>=0?'Net operating profit':'Net operating loss', fmt.format(Math.round(p.net)), p.net>=0?'pos':'neg', true);
+  }
+
+  function computeAll(){
+    var rev=projectRevenue();
+    $('proj-rev').textContent=fmt.format(Math.round(rev));
+    $('rev-method').textContent = method==='trend'?'follows the recent trend':(method==='manual'?'entered by hand':'3-month average');
+    $('btn-avg').classList.toggle('active', method==='average');
+    $('btn-trend').classList.toggle('active', method==='trend');
+    $('btn-manual').classList.toggle('active', method==='manual');
+    $('manual-wrap').style.display = method==='manual' ? 'block' : 'none';
+
+    var base=pnl(rev,1,1);
+    var body=$('pnl-body'); body.innerHTML='';
+    body.appendChild(row('Projected revenue', fmt.format(Math.round(base.rev)),'rev',{bold:true}));
+    body.appendChild(row('Less: variable costs', '\u2212'+fmt.format(Math.round(base.varTotal)),'vr'));
+    body.appendChild(row('Contribution margin', fmt.format(Math.round(base.cm)),'',{cls:'subtotal',bold:true}));
+    body.appendChild(row('Less: fixed costs', '\u2212'+fmt.format(Math.round(base.fixedTotal)),'fx'));
+    body.appendChild(row(base.net>=0?'Projected operating profit':'Projected operating loss', fmt.format(Math.round(base.net)), base.net>=0?'pos':'neg',{cls:'total',bold:true}));
+
+    var be = base.cmRatio>0 ? base.fixedTotal/base.cmRatio : 0;
+    $('cm-pct').textContent=Math.round(base.cmRatio*100)+'%';
+    $('be-rev').textContent= base.cmRatio>0 ? fmt.format(Math.round(be)) : '—';
+    var mos = base.rev>0 && base.cmRatio>0 ? (base.rev-be)/base.rev*100 : 0;
+    $('mos').textContent = base.cmRatio>0 ? Math.round(mos)+'%' : '—';
+
+    var rAdj=+$('rev-adj').value, fAdj=+$('fix-adj').value, vAdj=+$('var-adj').value;
+    $('rev-adj-out').textContent=(rAdj>=0?'+':'')+rAdj+'%';
+    $('fix-adj-out').textContent=(fAdj>=0?'+':'')+fAdj+'%';
+    $('var-adj-out').textContent=(vAdj>=0?'+':'')+vAdj+'%';
+    var scen=pnl(rev*(1+rAdj/100), 1+fAdj/100, 1+vAdj/100);
+    fillCol('base-col',base); fillCol('scen-col',scen);
+
+    var note=$('leverage-note');
+    if(rAdj===0 && fAdj===0 && vAdj===0){
+      note.textContent='Move the sliders to test a scenario. Because fixed costs don\u2019t move with revenue, a small change in sales can cause a much bigger swing in profit.';
+    } else {
+      var diff=scen.net-base.net;
+      var diffTxt=(diff>=0?'+':'\u2212')+fmt.format(Math.abs(Math.round(diff)));
+      var lev='';
+      if(base.net!==0 && rAdj!==0 && fAdj===0 && vAdj===0){
+        var pp=((scen.net-base.net)/Math.abs(base.net))*100;
+        lev=' A '+(rAdj>=0?'+':'')+rAdj+'% move in revenue shifted profit by '+(pp>=0?'+':'')+Math.round(pp)+'% — that amplification is operating leverage.';
+      }
+      note.innerHTML='Profit changes by <b>'+diffTxt+'</b> versus the base case.'+lev;
+    }
+  }
+
+  $('btn-avg').onclick=function(){ method='average'; computeAll(); };
+  $('btn-trend').onclick=function(){ method='trend'; computeAll(); };
+  $('btn-manual').onclick=function(){ method='manual'; computeAll(); };
+  ['m1','m2','m3','manual-rev'].forEach(function(id){ $(id).oninput=computeAll; });
+  $('rev-adj').oninput=computeAll; $('fix-adj').oninput=computeAll; $('var-adj').oninput=computeAll;
+  $('add-exp').onclick=function(){ expenses.push({name:'New expense',type:'fixed',val:0}); renderExpenses(); computeAll(); };
+  $('reset').onclick=function(){
+    expenses=SAMPLE.map(function(e){return {name:e.name,type:e.type,val:e.val};});
+    $('m1').value=18000; $('m2').value=19500; $('m3').value=21000; $('manual-rev').value=20000;
+    method='average'; $('rev-adj').value=0; $('fix-adj').value=0; $('var-adj').value=0;
+    renderExpenses(); computeAll();
+  };
+
+  renderExpenses();
+  computeAll();
+})();
+</script>
+</body>
+</html>

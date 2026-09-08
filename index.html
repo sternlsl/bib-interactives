@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive learning modules for One Million Black Women: Black in Business.">
+  <meta name="theme-color" content="#004E29">
+  <title>Black in Business | Interactive Learning</title>
+  <style>
+    :root {
+      --white: #ffffff;
+      --off-white: #f8f8f5;
+      --sky-blue: #9beeeb;
+      --magenta: #98004d;
+      --coral: #fa6059;
+      --emerald: #004e29;
+      --naples-yellow: #ffb133;
+      --black: #000000;
+      --page-gutter: clamp(1.25rem, 4vw, 4.5rem);
+      --hairline: 1px solid var(--black);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      color-scheme: light;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--off-white);
+      color: var(--black);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 20;
+      top: 0.75rem;
+      left: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--black);
+      color: var(--white);
+      transform: translateY(-180%);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .site-header {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      min-height: 5.25rem;
+      border-bottom: var(--hairline);
+      background: var(--white);
+    }
+
+    .brand-lockup {
+      grid-column: 1 / 4;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 1rem var(--page-gutter);
+    }
+
+    .brand-name,
+    .program-name,
+    .eyebrow,
+    .module-number,
+    .module-kicker,
+    .module-link,
+    .footer-label {
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .brand-name {
+      max-width: 10rem;
+      font-size: 0.78rem;
+      line-height: 1.15;
+    }
+
+    .program-name {
+      padding-left: 1.25rem;
+      border-left: var(--hairline);
+      font-size: 0.78rem;
+      line-height: 1.15;
+    }
+
+    .module-count {
+      grid-column: 4 / 6;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.8rem;
+      padding: 1rem var(--page-gutter);
+      background: var(--sky-blue);
+      border-left: var(--hairline);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .module-count strong {
+      font-family: "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+      font-size: 2.25rem;
+      line-height: 1;
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      min-height: clamp(30rem, 63vh, 44rem);
+      overflow: hidden;
+      border-bottom: var(--hairline);
+      background: var(--emerald);
+      color: var(--white);
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+      grid-column: 1 / 5;
+      align-self: end;
+      padding: clamp(4rem, 9vw, 8rem) var(--page-gutter) clamp(3rem, 6vw, 5rem);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0 0 1.5rem;
+      font-size: 0.82rem;
+    }
+
+    .eyebrow::before {
+      width: 2.5rem;
+      height: 0.25rem;
+      background: var(--naples-yellow);
+      content: "";
+    }
+
+    h1 {
+      max-width: 11ch;
+      margin: 0;
+      font-family: "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", Arial, sans-serif;
+      font-size: clamp(4rem, 10vw, 9.75rem);
+      font-stretch: condensed;
+      font-weight: 900;
+      letter-spacing: -0.055em;
+      line-height: 0.82;
+      text-transform: uppercase;
+    }
+
+    .hero-intro {
+      max-width: 41rem;
+      margin: 2rem 0 0;
+      font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+      line-height: 1.45;
+    }
+
+    .hero-art {
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: min(42vw, 40rem);
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      display: block;
+    }
+
+    .shape-sun {
+      top: 8%;
+      right: 10%;
+      width: clamp(8rem, 18vw, 16rem);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--naples-yellow);
+    }
+
+    .shape-coral {
+      right: -3%;
+      bottom: 8%;
+      width: clamp(14rem, 28vw, 27rem);
+      aspect-ratio: 1;
+      background: var(--coral);
+      clip-path: polygon(51% 0, 100% 32%, 84% 92%, 23% 100%, 0 42%);
+      transform: rotate(-8deg);
+    }
+
+    .shape-sky {
+      right: 27%;
+      bottom: 3%;
+      width: clamp(9rem, 18vw, 17rem);
+      aspect-ratio: 1;
+      background: var(--sky-blue);
+      clip-path: polygon(50% 0, 100% 100%, 0 76%);
+      transform: rotate(12deg);
+    }
+
+    .modules-section {
+      padding: clamp(4rem, 8vw, 7rem) var(--page-gutter);
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1rem;
+      align-items: end;
+      margin-bottom: clamp(2rem, 5vw, 4rem);
+    }
+
+    .section-heading h2 {
+      grid-column: 1 / 4;
+      margin: 0;
+      font-family: "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", Arial, sans-serif;
+      font-size: clamp(2.75rem, 6vw, 5.75rem);
+      font-stretch: condensed;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      text-transform: uppercase;
+    }
+
+    .section-heading p {
+      grid-column: 4 / 6;
+      margin: 0;
+      padding-top: 1rem;
+      border-top: 0.35rem solid var(--black);
+      font-size: 1rem;
+    }
+
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-top: var(--hairline);
+      border-left: var(--hairline);
+    }
+
+    .module-card {
+      position: relative;
+      min-height: 25rem;
+      overflow: hidden;
+      border-right: var(--hairline);
+      border-bottom: var(--hairline);
+      text-decoration: none;
+      isolation: isolate;
+    }
+
+    .module-card::after {
+      position: absolute;
+      z-index: -1;
+      content: "";
+      transition: transform 180ms ease;
+    }
+
+    .module-card:hover::after,
+    .module-card:focus-visible::after {
+      transform: scale(1.08) rotate(4deg);
+    }
+
+    .module-card:focus-visible {
+      z-index: 3;
+      outline: 0.35rem solid var(--black);
+      outline-offset: -0.35rem;
+    }
+
+    .card-1 {
+      background: var(--sky-blue);
+    }
+
+    .card-1::after {
+      right: -7rem;
+      bottom: -10rem;
+      width: 23rem;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--white);
+    }
+
+    .card-2 {
+      background: var(--magenta);
+      color: var(--white);
+    }
+
+    .card-2::after {
+      right: -2rem;
+      bottom: -3rem;
+      width: 18rem;
+      aspect-ratio: 1;
+      background: var(--coral);
+      clip-path: polygon(50% 0, 100% 38%, 80% 100%, 14% 87%, 0 24%);
+    }
+
+    .card-3 {
+      background: var(--coral);
+    }
+
+    .card-3::after {
+      right: 1.5rem;
+      bottom: -3rem;
+      width: 19rem;
+      aspect-ratio: 1;
+      background: var(--naples-yellow);
+      clip-path: polygon(50% 0, 100% 100%, 0 78%);
+    }
+
+    .card-4 {
+      background: var(--naples-yellow);
+    }
+
+    .card-4::after {
+      right: -3rem;
+      bottom: -5rem;
+      width: 20rem;
+      aspect-ratio: 1;
+      background: var(--emerald);
+      clip-path: polygon(50% 0, 100% 38%, 80% 100%, 14% 87%, 0 24%);
+    }
+
+    .module-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      min-height: 25rem;
+      flex-direction: column;
+      padding: clamp(1.5rem, 4vw, 3rem);
+    }
+
+    .module-number {
+      margin-bottom: auto;
+      font-family: "Arial Narrow", "Helvetica Neue Condensed", Arial, sans-serif;
+      font-size: clamp(4rem, 8vw, 7rem);
+      letter-spacing: -0.04em;
+      line-height: 0.8;
+    }
+
+    .module-kicker {
+      margin: 4rem 0 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .module-card h3 {
+      max-width: 13ch;
+      margin: 0;
+      font-family: "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", Arial, sans-serif;
+      font-size: clamp(2rem, 4vw, 3.75rem);
+      font-stretch: condensed;
+      font-weight: 900;
+      letter-spacing: -0.045em;
+      line-height: 0.95;
+      text-transform: uppercase;
+    }
+
+    .module-description {
+      max-width: 35rem;
+      margin: 1rem 0 1.5rem;
+      font-size: 1rem;
+    }
+
+    .module-link {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 0.7rem;
+      padding-bottom: 0.2rem;
+      border-bottom: 0.15rem solid currentColor;
+      font-size: 0.78rem;
+    }
+
+    .module-link::after {
+      content: "\2197";
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .site-footer {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .footer-label {
+      grid-column: 1 / 4;
+      margin: 0;
+      padding: 2.25rem var(--page-gutter);
+      font-size: 0.75rem;
+    }
+
+    .footer-note {
+      grid-column: 4 / 6;
+      margin: 0;
+      padding: 2.25rem var(--page-gutter);
+      border-left: 1px solid var(--white);
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 760px) {
+      .site-header,
+      .hero,
+      .section-heading,
+      .site-footer {
+        grid-template-columns: 1fr;
+      }
+
+      .brand-lockup,
+      .module-count,
+      .hero-copy,
+      .section-heading h2,
+      .section-heading p,
+      .footer-label,
+      .footer-note {
+        grid-column: 1;
+      }
+
+      .module-count {
+        justify-content: flex-start;
+        border-top: var(--hairline);
+        border-left: 0;
+      }
+
+      .hero {
+        min-height: 39rem;
+      }
+
+      .hero-copy {
+        padding-top: 12rem;
+      }
+
+      .hero-art {
+        width: 70vw;
+      }
+
+      .shape-sun {
+        top: 2rem;
+      }
+
+      .shape-sky {
+        right: 35%;
+        bottom: auto;
+        top: 6rem;
+      }
+
+      .shape-coral {
+        display: none;
+      }
+
+      .section-heading {
+        gap: 2rem;
+      }
+
+      .module-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .module-card,
+      .module-content {
+        min-height: 23rem;
+      }
+
+      .footer-note {
+        padding-top: 0;
+        border-left: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .module-card::after {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#modules">Skip to modules</a>
+
+  <header class="site-header">
+    <div class="brand-lockup" aria-label="One Million Black Women, Black in Business">
+      <span class="brand-name">One Million<br>Black Women</span>
+      <span class="program-name">Black in<br>Business</span>
+    </div>
+    <div class="module-count"><strong>04</strong> learning modules</div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Interactive learning</p>
+        <h1 id="page-title">Black in Business</h1>
+        <p class="hero-intro">Build confidence in the numbers behind a business. Choose a module to practice financial statements, profit planning, or working capital decisions.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <span class="shape shape-sun"></span>
+        <span class="shape shape-coral"></span>
+        <span class="shape shape-sky"></span>
+      </div>
+    </section>
+
+    <section class="modules-section" id="modules" aria-labelledby="modules-title">
+      <div class="section-heading">
+        <h2 id="modules-title">Choose your module.</h2>
+        <p>Each activity runs in your browser. No account or download is required.</p>
+      </div>
+
+      <div class="module-grid">
+        <a class="module-card card-1" href="./1%20-%20coffee%20cart%20financial%20statements%20simulator.html" aria-label="Open Financial Statements: Coffee Cart">
+          <div class="module-content">
+            <span class="module-number" aria-hidden="true">01</span>
+            <p class="module-kicker">Financial statements</p>
+            <h3>Coffee Cart</h3>
+            <p class="module-description">Predict how everyday transactions flow through the balance sheet, income statement, and cash flow statement.</p>
+            <span class="module-link">Open module</span>
+          </div>
+        </a>
+
+        <a class="module-card card-2" href="./2%20-%20ms%20yeo%20design%20studio%20simulator.html" aria-label="Open Financial Statements: Design Studio">
+          <div class="module-content">
+            <span class="module-number" aria-hidden="true">02</span>
+            <p class="module-kicker">Financial statements</p>
+            <h3>Design Studio</h3>
+            <p class="module-description">Follow a service business through a month of activity and see how accrual accounting connects all three statements.</p>
+            <span class="module-link">Open module</span>
+          </div>
+        </a>
+
+        <a class="module-card card-3" href="./3%20-%20projecting%20P%26L.html" aria-label="Open Project Next Month's Profit and Loss">
+          <div class="module-content">
+            <span class="module-number" aria-hidden="true">03</span>
+            <p class="module-kicker">Profit planning</p>
+            <h3>Project Next Month's P&amp;L</h3>
+            <p class="module-description">Build a revenue projection, classify costs, and test how changes in sales affect operating profit.</p>
+            <span class="module-link">Open module</span>
+          </div>
+        </a>
+
+        <a class="module-card card-4" href="./4%20-%20working%20capital%20management.html" aria-label="Open Cash and Carry: Working Capital Management">
+          <div class="module-content">
+            <span class="module-number" aria-hidden="true">04</span>
+            <p class="module-kicker">Working capital</p>
+            <h3>Cash &amp; Carry</h3>
+            <p class="module-description">Manage inventory, customer credit, and supplier payments while balancing profit with cash.</p>
+            <span class="module-link">Open module</span>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p class="footer-label">One Million Black Women · Black in Business</p>
+    <p class="footer-note">Four practical exercises for building financial fluency.</p>
+  </footer>
+</body>
+</html>

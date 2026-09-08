@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cash & Carry — Inventory Management Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#F7F4EE;--ink:#1A1A18;--teal:#0F6E56;--teal-lt:#E1F5EE;--teal-mid:#1D9E75;
+  --blue:#185FA5;--blue-lt:#E6F1FB;--amber:#854F0B;--amber-lt:#FAEEDA;
+  --red:#A32D2D;--red-lt:#FCEBEB;--border:rgba(26,26,24,.12);
+  --mono:'DM Mono',monospace;--serif:'Fraunces',serif;
+}
+html,body{height:100%;background:var(--cream);color:var(--ink);font-family:var(--mono)}
+body{display:flex;justify-content:center;padding:2rem 1rem;min-height:100vh}
+.game{width:100%;max-width:680px}
+.screen{display:none}.screen.active{display:block}
+
+.reg-wrap{text-align:center;padding:3rem 1rem}
+.reg-wrap h1{font-family:var(--serif);font-size:36px;font-weight:600;letter-spacing:-.5px;margin-bottom:.35rem}
+.reg-wrap .sub{font-size:12px;opacity:.45;margin-bottom:2.5rem;letter-spacing:.1em;text-transform:uppercase}
+.name-input{width:100%;max-width:340px;padding:.8rem 1.1rem;font-family:var(--mono);font-size:15px;border:1.5px solid var(--border);border-radius:10px;background:white;color:var(--ink);display:block;margin:0 auto 1rem;text-align:center;outline:none;transition:.15s}
+.name-input:focus{border-color:var(--teal)}
+.btn-primary{background:var(--ink);color:white;border:none;padding:.8rem 2.5rem;font-family:var(--mono);font-size:13px;font-weight:500;border-radius:10px;cursor:pointer;letter-spacing:.06em;transition:.15s}
+.btn-primary:hover{opacity:.82}
+.btn-primary:disabled{opacity:.3;cursor:not-allowed}
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:480px;margin:2.5rem auto 0;text-align:left}
+.rule-card{background:white;border:.5px solid var(--border);border-radius:10px;padding:.9rem 1rem}
+.rule-card .rlabel{font-size:10px;text-transform:uppercase;letter-spacing:.1em;opacity:.4;margin-bottom:.3rem}
+.rule-card .rval{font-size:13px;line-height:1.5}
+
+.q-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.5rem;padding-top:.5rem}
+.q-title{font-family:var(--serif);font-size:24px;font-weight:600}
+.q-player{font-size:11px;opacity:.4;letter-spacing:.07em;text-transform:uppercase}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1.25rem}
+.stat{background:white;border:.5px solid var(--border);border-radius:10px;padding:.8rem .9rem}
+.stat .slabel{font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.4;margin-bottom:.25rem}
+.stat .sval{font-size:18px;font-weight:500}
+.stat.warn .sval{color:var(--red)}
+.stat.good .sval{color:var(--teal)}
+
+.demand-reveal{background:var(--amber-lt);border:.5px solid #EF9F27;border-radius:10px;padding:1rem 1.15rem;margin-bottom:1.25rem}
+.demand-reveal .dlabel{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--amber);margin-bottom:.3rem;font-weight:500}
+.demand-reveal .demand-num{font-size:26px;font-weight:500;color:var(--amber);margin:.3rem 0}
+.demand-reveal .dtext{font-size:12px;color:var(--amber);line-height:1.6}
+
+.unlock-banner{background:var(--teal-lt);border:.5px solid var(--teal-mid);border-radius:10px;padding:.9rem 1.15rem;margin-bottom:1.25rem}
+.unlock-banner .ulabel{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:.3rem;font-weight:500}
+.unlock-banner p{font-size:12px;color:#085041;line-height:1.65}
+
+.decision-card{background:white;border:.5px solid var(--border);border-radius:10px;padding:1.1rem 1.15rem;margin-bottom:.75rem}
+.decision-card h3{font-size:10px;text-transform:uppercase;letter-spacing:.1em;opacity:.4;margin-bottom:.85rem}
+.slider-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem}
+.slider-row label{font-size:12px;min-width:115px;opacity:.7}
+.slider-row input[type=range]{flex:1;accent-color:var(--teal)}
+.slider-row .sout{font-size:13px;font-weight:500;min-width:36px;text-align:right}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.55rem 0;border-bottom:.5px solid var(--border)}
+.toggle-row:last-child{border-bottom:none;padding-bottom:0}
+.toggle-row .tinfo{font-size:12px;line-height:1.45;padding-right:1rem}
+.toggle-row .tinfo .tsub{font-size:11px;opacity:.45;margin-top:3px}
+.toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:rgba(26,26,24,.15);border-radius:12px;cursor:pointer;transition:.2s}
+.toggle-slider:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-slider{background:var(--teal)}
+.toggle input:checked+.toggle-slider:before{transform:translateX(18px)}
+
+.preview-box{background:var(--cream);border-radius:8px;padding:.8rem 1rem;margin-top:.9rem;font-size:12px}
+.preview-box .prow{display:flex;justify-content:space-between;padding:.22rem 0;border-bottom:.5px solid var(--border)}
+.preview-box .prow:last-child{border-bottom:none;font-weight:500}
+.warn-text{color:var(--red)}.ok-text{color:var(--teal)}
+
+.btn-submit{width:100%;background:var(--ink);color:white;border:none;padding:.9rem;font-family:var(--mono);font-size:13px;font-weight:500;border-radius:10px;cursor:pointer;margin-top:.85rem;transition:.15s;letter-spacing:.05em}
+.btn-submit:hover{opacity:.82}
+.btn-submit:disabled{opacity:.3;cursor:not-allowed}
+
+.result-highlight{background:var(--teal-lt);border:.5px solid var(--teal-mid);border-radius:10px;padding:1.1rem 1.15rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.result-highlight.bad{background:var(--red-lt);border-color:#E24B4A}
+.rh-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:.3rem}
+.rh-label.bad{color:var(--red)}
+.rh-val{font-size:28px;font-weight:500;color:var(--teal)}
+.rh-val.bad{color:var(--red)}
+.rh-note{font-size:12px;opacity:.55;line-height:1.55;max-width:280px}
+
+.results-section{margin-bottom:1.25rem}
+.results-section h3{font-size:10px;text-transform:uppercase;letter-spacing:.1em;opacity:.4;margin-bottom:.6rem;padding-bottom:.4rem;border-bottom:.5px solid var(--border)}
+.fs-table{width:100%;border-collapse:collapse;font-size:12px;background:white;border-radius:10px;overflow:hidden;border:.5px solid var(--border)}
+.fs-table td{padding:.4rem .75rem;border-bottom:.5px solid var(--border)}
+.fs-table tr:last-child td{border-bottom:none}
+.fs-table .num{text-align:right;font-family:var(--mono)}
+.fs-table .total td{font-weight:500;background:var(--cream)}
+.fs-table .section-hd td{font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.4;padding-top:.7rem;background:var(--cream)}
+.pos{color:var(--teal)}.neg{color:var(--red)}
+
+.reflection{background:var(--blue-lt);border:.5px solid #85B7EB;border-radius:10px;padding:.9rem 1.15rem;margin-bottom:1.25rem}
+.reflection .rlabel{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:.4rem;font-weight:500}
+.reflection p{font-size:12px;color:#0C447C;line-height:1.65}
+
+.bust-overlay{background:var(--red-lt);border:.5px solid #E24B4A;border-radius:12px;padding:2rem;text-align:center;margin:1rem 0}
+.bust-overlay h2{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--red);margin-bottom:.5rem}
+.bust-overlay p{font-size:12px;color:var(--red);opacity:.75;line-height:1.65;margin-bottom:1.25rem}
+
+.btn-next{background:var(--teal);color:white;border:none;padding:.85rem 2rem;font-family:var(--mono);font-size:13px;font-weight:500;border-radius:10px;cursor:pointer;transition:.15s;letter-spacing:.05em}
+.btn-next:hover{opacity:.82}
+
+.lb-wrap{padding:.5rem 0 2rem}
+.lb-title{font-family:var(--serif);font-size:26px;font-weight:600;margin-bottom:.25rem}
+.lb-sub{font-size:11px;opacity:.4;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1.75rem}
+.lb-row{display:flex;align-items:center;gap:.75rem;padding:.7rem .9rem;border-radius:10px;margin-bottom:.5rem;border:.5px solid var(--border);background:white;transition:.15s}
+.lb-row.you{border-color:var(--teal-mid);background:var(--teal-lt)}
+.lb-row.first{border-color:#EF9F27;background:var(--amber-lt)}
+.lb-rank{font-size:13px;font-weight:500;min-width:22px;text-align:center;opacity:.45}
+.lb-rank.gold{color:#854F0B;opacity:1;font-size:15px}
+.lb-name{flex:1;font-size:13px}
+.lb-score{font-size:13px;font-weight:500;font-family:var(--mono)}
+.lb-score.pos{color:var(--teal)}.lb-score.neg{color:var(--red)}
+.lb-badge{font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(26,26,24,.08)}
+.lb-badge.bust{background:var(--red-lt);color:var(--red)}
+.lb-badge.winner{background:var(--amber-lt);color:var(--amber)}
+
+.btn-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.5rem}
+.btn-outline{background:white;border:.5px solid var(--border);color:var(--ink);padding:.7rem 1.2rem;font-family:var(--mono);font-size:12px;border-radius:8px;cursor:pointer;transition:.15s}
+.btn-outline:hover{background:var(--cream)}
+
+@media(max-width:480px){
+  .rules-grid{grid-template-columns:1fr}
+  .stat-row{grid-template-columns:1fr 1fr}
+  .result-highlight{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="game">
+
+<!-- REGISTER -->
+<div id="screen-register" class="screen active">
+  <div class="reg-wrap">
+    <h1>Cash &amp; Carry</h1>
+    <p class="sub">The inventory management challenge</p>
+    <input class="name-input" id="player-name" type="text" placeholder="Enter your name" maxlength="20" autocomplete="off" />
+    <br>
+    <button class="btn-primary" id="btn-start" onclick="startGame()" disabled>Start playing</button>
+    <div class="rules-grid">
+      <div class="rule-card"><div class="rlabel">Starting cash</div><div class="rval">$250</div></div>
+      <div class="rule-card"><div class="rlabel">Selling price</div><div class="rval">$50 per unit</div></div>
+      <div class="rule-card"><div class="rlabel">Inventory cost</div><div class="rval">$20 per unit</div></div>
+      <div class="rule-card"><div class="rlabel">Operating expenses</div><div class="rval">$40 per quarter</div></div>
+      <div class="rule-card"><div class="rlabel">Quarters</div><div class="rval">4 quarters total</div></div>
+      <div class="rule-card"><div class="rlabel">Win condition</div><div class="rval">Highest net income — don't run out of cash</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DECISION -->
+<div id="screen-decision" class="screen">
+  <div class="q-header">
+    <span class="q-title" id="q-title">Quarter 1</span>
+    <span class="q-player" id="q-player"></span>
+  </div>
+  <div class="stat-row">
+    <div class="stat" id="stat-cash"><div class="slabel">Cash available</div><div class="sval" id="stat-cash-val">$250</div></div>
+    <div class="stat" id="stat-inv"><div class="slabel">Inventory held</div><div class="sval" id="stat-inv-val">0 units</div></div>
+    <div class="stat" id="stat-ni"><div class="slabel">Net income so far</div><div class="sval" id="stat-ni-val">$0</div></div>
+  </div>
+
+  <div id="demand-box" class="demand-reveal">
+    <div class="dlabel">This quarter's market demand</div>
+    <div class="demand-num" id="demand-num">—</div>
+    <div class="dtext" id="demand-text"></div>
+  </div>
+
+  <div id="unlock-box" class="unlock-banner" style="display:none">
+    <div class="ulabel">New options unlocked this quarter</div>
+    <p id="unlock-text"></p>
+  </div>
+
+  <div class="decision-card">
+    <h3>Your decisions this quarter</h3>
+    <div class="slider-row">
+      <label>Units to buy</label>
+      <input type="range" id="sl-buy" min="0" max="30" value="0" step="1" oninput="updatePreview()">
+      <span class="sout" id="out-buy">0</span>
+    </div>
+
+    <div id="credit-options" style="display:none;margin-top:.85rem;border-top:.5px solid var(--border);padding-top:.85rem">
+      <div class="toggle-row">
+        <div class="tinfo">Offer credit to customers
+          <div class="tsub">Sell to a larger market (demand +50%) — collect cash next quarter.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="tog-credit" onchange="updatePreview()"><span class="toggle-slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="tinfo">Pay suppliers next quarter
+          <div class="tsub">Frees up cash now — but costs $25/unit instead of $20.</div>
+        </div>
+        <label class="toggle"><input type="checkbox" id="tog-latepay" onchange="updatePreview()"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+
+    <div class="preview-box" id="preview-box"></div>
+    <button class="btn-submit" id="btn-submit" onclick="submitDecision()">Confirm decisions &rarr;</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="screen-results" class="screen">
+  <div class="q-header">
+    <span class="q-title" id="r-title">Quarter 1 results</span>
+    <span class="q-player" id="r-player"></span>
+  </div>
+
+  <div id="bust-box" class="bust-overlay" style="display:none">
+    <h2>Out of cash</h2>
+    <p>Your cash balance hit zero. You can no longer operate.<br>Your run ends here.</p>
+    <button class="btn-next" onclick="goToSummary()">See your results &rarr;</button>
+  </div>
+
+  <div id="results-body">
+    <div id="result-highlight" class="result-highlight">
+      <div>
+        <div class="rh-label" id="rh-label">Quarter net income</div>
+        <div class="rh-val" id="rh-val">$0</div>
+      </div>
+      <div class="rh-note" id="rh-note"></div>
+    </div>
+
+    <div class="results-section">
+      <h3>Income statement</h3>
+      <table class="fs-table" id="tbl-is"></table>
+    </div>
+    <div class="results-section">
+      <h3>Balance sheet</h3>
+      <table class="fs-table" id="tbl-bs"></table>
+    </div>
+
+    <div class="reflection" id="reflection-box">
+      <div class="rlabel">Think about it</div>
+      <p id="reflection-text"></p>
+    </div>
+
+    <button class="btn-next" id="btn-next" onclick="nextQuarter()">Next quarter &rarr;</button>
+  </div>
+</div>
+
+<!-- FINAL RESULTS -->
+<div id="screen-summary" class="screen">
+  <div class="lb-wrap">
+    <div class="lb-title">Final results</div>
+    <div class="lb-sub" id="sum-sub">4 quarters complete</div>
+    <div class="result-highlight" id="sum-highlight">
+      <div>
+        <div class="rh-label" id="sum-label">Total net income</div>
+        <div class="rh-val" id="sum-val">$0</div>
+      </div>
+      <div class="rh-note" id="sum-note"></div>
+    </div>
+    <div id="sum-list" style="margin-top:1.25rem"></div>
+    <div class="reflection" id="sum-reflection" style="margin-top:1.25rem"></div>
+    <div class="btn-row">
+      <button class="btn-outline" onclick="playAgain()">Play again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SELL=50,COST=20,COST_LATE=25,OPEX=40;
+const STARTING_CASH=250;
+const CREDIT_DEMAND_MULT=1.5;  // Credit terms boost effective demand by 50% (rounded up)
+
+// Demand tiers per quarter — each quarter picks one tier at random.
+// Tiers stay quarter-flavoured so the narrative (cautious / strong / slow / final push)
+// still loosely fits, but the exact number is randomised within a sensible range.
+const DEMAND_TIERS=[
+  // Q1 — cautious opener: 5-9 units
+  {range:[5,9],  labels:[
+    'Cautious quarter — the market is quiet. Buyers are hesitant.',
+    'Slow start — only a handful of customers are buying.',
+    'Light demand — the season is just getting going.'
+  ]},
+  // Q2 — variable: 7-15 units
+  {range:[7,15], labels:[
+    'Strong quarter — customers are buying. Demand is high.',
+    'Steady quarter — solid but not spectacular demand.',
+    'Buyers are out in force — a busy stretch.'
+  ]},
+  // Q3 — softer: 5-11 units
+  {range:[5,11], labels:[
+    'Slow quarter — demand dips. Some customers are holding back.',
+    'Mixed quarter — demand is uneven.',
+    'A quieter stretch — buyers are cautious again.'
+  ]},
+  // Q4 — variable finish: 8-16 units
+  {range:[8,16], labels:[
+    'Final push — the market picks up again heading into year end.',
+    'Year-end rush — customers are buying ahead of the holidays.',
+    'Closing strong — demand surges into the last quarter.'
+  ]}
+];
+
+const REFLECTIONS=[
+  'You could only buy what your cash allowed. Did you stock enough to meet demand — or did you over-buy and tie up cash in unsold inventory?',
+  'How did your Q1 inventory decisions affect what you could afford this quarter? Is holding inventory always the right move?',
+  'New options were available this quarter. Does offering credit always boost profit? What risk does collecting cash one quarter later create?',
+  'Look at your total net income versus your ending cash. Why might they be different? Which number matters more — to a lender? To an owner?'
+];
+
+let state={};
+
+function $(id){return document.getElementById(id)}
+function fmt(n){if(n===0)return'$0';return(n<0?'−$':'$')+Math.abs(n).toLocaleString();}
+
+// Pick a random integer between min and max inclusive.
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+// Generate fresh random demand for all 4 quarters at the start of each game.
+function generateDemands(){
+  const demands=[];
+  const labels=[];
+  for(let i=0;i<4;i++){
+    const tier=DEMAND_TIERS[i];
+    demands.push(randInt(tier.range[0],tier.range[1]));
+    labels.push(tier.labels[randInt(0,tier.labels.length-1)]);
+  }
+  return {demands,labels};
+}
+
+document.getElementById('player-name').addEventListener('input',function(){
+  $('btn-start').disabled=this.value.trim().length<2;
+});
+document.getElementById('player-name').addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&this.value.trim().length>=2)startGame();
+});
+
+function startGame(){
+  const name=$('player-name').value.trim();
+  if(!name)return;
+  const {demands,labels}=generateDemands();
+  state={name,quarter:1,cash:STARTING_CASH,inventory:0,invValue:0,ar:0,ap:0,cumulativeNI:0,bust:false,history:[],demands,demandLabels:labels};
+  showDecision();
+}
+
+function showDecision(){
+  const q=state.quarter;
+  showScreen('decision');
+  $('q-title').textContent='Quarter '+q+' of 4';
+  $('q-player').textContent=state.name.toUpperCase();
+  const cashEl=$('stat-cash');
+  cashEl.className='stat'+(state.cash<100?' warn':'');
+  $('stat-cash-val').textContent=fmt(state.cash);
+  $('stat-inv-val').textContent=state.inventory+' units';
+  $('stat-ni-val').textContent=fmt(state.cumulativeNI);
+  $('stat-ni-val').className='sval'+(state.cumulativeNI>0?' good':state.cumulativeNI<0?' warn':'');
+  const demand=state.demands[q-1];
+  const boostedDemand=Math.ceil(demand*CREDIT_DEMAND_MULT);
+  if(q>=3){
+    $('demand-num').innerHTML=demand+' units <span style="font-size:14px;opacity:.7">(or '+boostedDemand+' with credit terms)</span>';
+  } else {
+    $('demand-num').textContent=demand+' units';
+  }
+  $('demand-text').textContent=state.demandLabels[q-1];
+  const sl=$('sl-buy');
+  sl.max=Math.max(40,boostedDemand+10);
+  sl.value=0;
+  $('out-buy').textContent=0;
+  const showCredit=q>=3;
+  $('credit-options').style.display=showCredit?'block':'none';
+  if(showCredit){
+    $('unlock-box').style.display='block';
+    $('unlock-text').innerHTML='<strong>Credit sales:</strong> offer customers 1-month payment terms — this unlocks 50% more demand (more customers will buy if they can pay later), but you collect their cash next quarter. <strong>Late payment:</strong> delay paying your suppliers until next quarter, but each unit will cost $25 instead of $20.';
+    $('tog-credit').checked=false;
+    $('tog-latepay').checked=false;
+  } else {
+    $('unlock-box').style.display='none';
+  }
+  $('btn-submit').disabled=false;
+  updatePreview();
+}
+
+function updatePreview(){
+  const q=state.quarter;
+  const buy=parseInt($('sl-buy').value)||0;
+  $('out-buy').textContent=buy;
+  const creditSales=q>=3&&$('tog-credit').checked;
+  const latePay=q>=3&&$('tog-latepay').checked;
+  const unitCost=latePay?COST_LATE:COST;
+  const baseDemand=state.demands[q-1];
+  const demand=creditSales?Math.ceil(baseDemand*CREDIT_DEMAND_MULT):baseDemand;
+  const totalAvail=state.inventory+buy;
+  const unitsSold=Math.min(totalAvail,demand);
+  const cashCollected=creditSales?0:unitsSold*SELL;
+  const cashPaidInv=latePay?0:buy*COST;
+  const projCash=state.cash+cashCollected-cashPaidInv-OPEX-state.ap;
+  const rev=unitsSold*SELL;
+  // Weighted-average inventory costing: combine carried-over value with new purchase value
+  const poolValue=state.invValue+buy*unitCost;
+  const poolUnits=state.inventory+buy;
+  const avgCost=poolUnits>0?poolValue/poolUnits:0;
+  const cogs=Math.round(unitsSold*avgCost);
+  const ni=rev-cogs-OPEX;
+  const warn=projCash<0?'warn-text':'ok-text';
+  const rows=[
+    ['Units available this quarter',totalAvail+' units'],
+    ['Units sold',unitsSold+' units (of '+demand+' demanded)'],
+    ['Revenue recognised',fmt(rev)],
+    ['Cost of goods sold',fmt(-cogs)],
+    ['Operating expenses',fmt(-OPEX)],
+    ['Est. net income this quarter',fmt(ni)],
+    ['Cash collected',cashCollected===0&&creditSales?'$0 now — '+fmt(rev)+' next quarter':fmt(cashCollected)],
+    ...(latePay?[['Cash paid to suppliers','$0 now — '+fmt(buy*unitCost)+' next quarter']]:
+               buy>0?[['Cash paid to suppliers',fmt(-buy*COST)]]:[] ),
+    ...(state.ap>0?[['Prior payables due',fmt(-state.ap)]]:[] ),
+    ['Projected ending cash','<span class="'+warn+'">'+fmt(projCash)+'</span>'],
+  ];
+  $('preview-box').innerHTML=rows.map(r=>`<div class="prow"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+  $('btn-submit').disabled=projCash<0&&!latePay;
+}
+
+function submitDecision(){
+  const q=state.quarter;
+  const buy=parseInt($('sl-buy').value)||0;
+  const creditSales=q>=3&&$('tog-credit').checked;
+  const latePay=q>=3&&$('tog-latepay').checked;
+  const unitCost=latePay?COST_LATE:COST;
+  const baseDemand=state.demands[q-1];
+  const demand=creditSales?Math.ceil(baseDemand*CREDIT_DEMAND_MULT):baseDemand;
+  const totalAvail=state.inventory+buy;
+  const unitsSold=Math.min(totalAvail,demand);
+  const endingInv=totalAvail-unitsSold;
+  // Weighted-average inventory costing
+  const poolValue=state.invValue+buy*unitCost;
+  const poolUnits=state.inventory+buy;
+  const avgCost=poolUnits>0?poolValue/poolUnits:0;
+  const cogs=Math.round(unitsSold*avgCost);
+  const endingInvValue=endingInv===0?0:poolValue-cogs;
+  const rev=unitsSold*SELL;
+  const ni=rev-cogs-OPEX;
+  const cashCollected=creditSales?0:unitsSold*SELL;
+  const cashPaidInv=latePay?0:buy*COST;
+  const newAP=latePay?buy*unitCost:0;
+  const newAR=creditSales?unitsSold*SELL:0;
+  const cashPaidPriorAP=state.ap;
+  const newCash=state.cash+cashCollected-cashPaidInv-OPEX-cashPaidPriorAP;
+  state.history.push({q,buy,unitsSold,endingInv,rev,cogs,ni,cashCollected,cashPaidInv,newAP,newAR,cashPaidPriorAP,startCash:state.cash,endCash:newCash,creditSales,latePay,unitCost,avgCost});
+  state.cash=newCash;
+  state.inventory=endingInv;
+  state.invValue=endingInvValue;
+  state.ar=newAR;
+  state.ap=newAP;
+  state.cumulativeNI+=ni;
+  if(state.cash<0)state.bust=true;
+  showResults();
+}
+
+function showResults(){
+  const q=state.quarter;
+  const h=state.history[q-1];
+  showScreen('results');
+  $('r-title').textContent='Quarter '+q+' results';
+  $('r-player').textContent=state.name.toUpperCase();
+  if(state.bust){
+    $('bust-box').style.display='block';
+    $('results-body').style.display='none';
+    return;
+  }
+  $('bust-box').style.display='none';
+  $('results-body').style.display='block';
+  const bad=h.ni<0;
+  $('result-highlight').className='result-highlight'+(bad?' bad':'');
+  $('rh-label').className='rh-label'+(bad?' bad':'');
+  $('rh-label').textContent='Quarter '+q+' net income';
+  $('rh-val').className='rh-val'+(bad?' bad':'');
+  $('rh-val').textContent=fmt(h.ni);
+  $('rh-note').textContent='Cumulative net income: '+fmt(state.cumulativeNI)+'   |   Ending cash: '+fmt(state.cash);
+  const costStr=h.avgCost%1===0?'$'+h.avgCost:'$'+h.avgCost.toFixed(2);
+  $('tbl-is').innerHTML=`
+    <tr><td>Sales revenue</td><td class="num pos">${fmt(h.rev)}</td></tr>
+    <tr><td style="padding-left:1rem;opacity:.7">Units sold: ${h.unitsSold} × $${SELL}</td><td class="num"></td></tr>
+    <tr><td>Cost of goods sold</td><td class="num neg">${fmt(-h.cogs)}</td></tr>
+    <tr><td style="padding-left:1rem;opacity:.7">Units sold: ${h.unitsSold} × ${costStr} ${h.avgCost!==COST?'avg cost':''}</td><td class="num"></td></tr>
+    <tr class="total"><td>Gross profit</td><td class="num ${h.rev-h.cogs>=0?'pos':'neg'}">${fmt(h.rev-h.cogs)}</td></tr>
+    <tr><td>Operating expenses</td><td class="num neg">${fmt(-OPEX)}</td></tr>
+    <tr class="total"><td>Net income</td><td class="num ${h.ni>=0?'pos':'neg'}">${fmt(h.ni)}</td></tr>
+  `;
+  const invDisplayValue=Math.round(state.invValue);
+  const avgInvCost=state.inventory>0?state.invValue/state.inventory:0;
+  const avgInvStr=avgInvCost%1===0?'$'+avgInvCost:'$'+avgInvCost.toFixed(2);
+  const totalAssets=state.cash+state.ar+invDisplayValue;
+  const equity=totalAssets-state.ap;
+  $('tbl-bs').innerHTML=`
+    <tr class="section-hd"><td colspan="2">Assets</td></tr>
+    <tr><td>Cash</td><td class="num">${fmt(state.cash)}</td></tr>
+    ${state.ar>0?`<tr><td>Accounts receivable</td><td class="num">${fmt(state.ar)}</td></tr>`:''}
+    ${state.inventory>0?`<tr><td>Inventory (${state.inventory} units @ ${avgInvStr})</td><td class="num">${fmt(invDisplayValue)}</td></tr>`:''}
+    <tr class="total"><td>Total assets</td><td class="num">${fmt(totalAssets)}</td></tr>
+    <tr class="section-hd"><td colspan="2">Liabilities &amp; equity</td></tr>
+    ${state.ap>0?`<tr><td>Accounts payable</td><td class="num neg">${fmt(-state.ap)}</td></tr>`:''}
+    <tr class="total"><td>Owner's equity</td><td class="num pos">${fmt(equity)}</td></tr>
+  `;
+  $('reflection-text').textContent=REFLECTIONS[q-1];
+  const isLast=q===4;
+  $('btn-next').textContent=isLast?'See final results →':'Next quarter →';
+}
+
+function nextQuarter(){
+  if(state.quarter===4){goToSummary();return;}
+  state.quarter++;
+  showDecision();
+}
+
+function goToSummary(){
+  showScreen('summary');
+  $('sum-sub').textContent = state.bust
+    ? state.name.toUpperCase()+' — ran out of cash in quarter '+state.quarter
+    : state.name.toUpperCase()+' — 4 quarters complete';
+  const bad = state.bust || state.cumulativeNI<0;
+  $('sum-highlight').className='result-highlight'+(bad?' bad':'');
+  $('sum-label').className='rh-label'+(bad?' bad':'');
+  $('sum-val').className='rh-val'+(bad?' bad':'');
+  $('sum-val').textContent=fmt(state.cumulativeNI);
+  $('sum-note').textContent='Ending cash: '+fmt(state.cash);
+  $('sum-list').innerHTML=state.history.map(h=>`<div class="lb-row">
+      <span class="lb-rank">Q${h.q}</span>
+      <span class="lb-name">${h.unitsSold} units sold &middot; ending cash ${fmt(h.endCash)}</span>
+      <span class="lb-score ${h.ni>=0?'pos':'neg'}">${fmt(h.ni)}</span>
+    </div>`).join('');
+  $('sum-reflection').innerHTML=`<div class="rlabel">Think about it</div>
+    <p>Compare your total net income with your ending cash. Why are they different? Did holding
+    inventory or offering credit lift profit while tightening cash? Which of the two numbers would
+    a lender look at, and which would you?</p>`;
+}
+
+function playAgain(){
+  $('player-name').value='';
+  $('btn-start').disabled=true;
+  showScreen('register');
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('screen-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
