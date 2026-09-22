@@ -2,7 +2,7 @@
 
 ## Project overview
 
-This repository is a static, front-end-only GitHub Pages site for One Million Black Women: Black in Business. The root `index.html` is the branded module directory. Each learning module is a self-contained HTML file with its own styles and scripts.
+This repository is a static, front-end-only GitHub Pages site for One Million Black Women: Black in Business. The root `index.html` is the branded activity directory. Each learning activity is a self-contained HTML file with its own styles and scripts. In user-facing copy, reserve “Module” for the course's full weekly lessons; call the four interactives “activities.”
 
 There is no package manager, build step, framework, or server-side component.
 
@@ -22,7 +22,7 @@ Recent milestones:
 
 ## Repository contents
 
-- `index.html` - Editable landing page and module directory.
+- `index.html` - Editable landing page and activity directory.
 - `.nojekyll` - Ensures GitHub Pages serves the static files directly.
 - `README.md` - Short repository overview.
 - `1 - coffee cart financial statements simulator.html`
@@ -30,9 +30,9 @@ Recent milestones:
 - `3 - projecting P&L.html`
 - `4 - working capital management.html`
 
-## Preserve the learning modules
+## Preserve the learning activities
 
-The four numbered HTML modules are approved, self-contained deliverables. Do not edit, rename, move, reformat, or regenerate them unless the user explicitly requests a module-level change. Landing-page work should normally be confined to `index.html` and repository documentation.
+The four numbered HTML activities are approved, self-contained deliverables. Do not edit, rename, move, reformat, or regenerate them unless the user explicitly requests an activity-level change. Landing-page work should normally be confined to `index.html` and repository documentation.
 
 Known SHA-256 checksums:
 
@@ -52,8 +52,8 @@ The visual direction comes from the 2021 One Million Black Women brand guideline
 - Brand colors: white `#FFFFFF`, off-white `#F8F8F5`, sky blue `#9BEEEB`, magenta `#98004D`, coral `#FA6059`, emerald `#004E29`, Naples yellow `#FFB133`, and black `#000000`.
 - Use black or white typography on brand-color surfaces; do not introduce gradients.
 - Body and interface copy use Inter from Google Fonts, with Arial/Helvetica fallbacks.
-- Primary display headlines and module numbers use League Gothic from Google Fonts, with Arial Narrow/condensed fallbacks. Longer module titles use Inter 800 in sentence case, following the secondary-headline hierarchy.
-- The desktop module directory is a four-across grid. Narrow tablets use two columns. Mobile uses compact single-column rows with two-line descriptions to limit scrolling.
+- Primary display headlines and activity numbers use League Gothic from Google Fonts, with Arial Narrow/condensed fallbacks. Longer activity titles use Inter 800 in sentence case, following the secondary-headline hierarchy.
+- The desktop activity directory is a four-across grid. Narrow tablets use two columns. Mobile uses compact single-column rows with two-line descriptions to limit scrolling.
 - Keep the page accessible: semantic headings, full-card links, visible keyboard focus, readable type, reduced-motion support, and the skip link should remain intact.
 
 ## Local preview and validation
@@ -66,9 +66,9 @@ python3 -m http.server 4173 --bind 127.0.0.1
 
 Before publishing:
 
-1. Confirm `index.html` loads successfully and all four module links resolve.
+1. Confirm `index.html` loads successfully and all four activity links resolve.
 2. Run `git diff --check`.
-3. Recalculate the four module checksums and compare them with the values above.
+3. Recalculate the four activity checksums and compare them with the values above.
 4. Confirm the Google Fonts stylesheet for Inter and League Gothic remains reachable, while retaining the local font fallbacks.
 
 ## Publishing

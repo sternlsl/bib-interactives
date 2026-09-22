@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Interactive learning modules for One Million Black Women: Black in Business.">
+  <meta name="description" content="Interactive learning activities for One Million Black Women: Black in Business.">
   <meta name="theme-color" content="#004E29">
   <title>Black in Business | Interactive Learning</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -373,9 +373,26 @@
 
     .module-description {
       max-width: 35rem;
-      margin: 0.8rem 0 1.15rem;
+      margin: 0.8rem 0 0.75rem;
       font-size: 1rem;
       line-height: 1.45;
+    }
+
+    .activity-context {
+      margin: 0 0 1rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid currentColor;
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+
+    .activity-context strong {
+      display: block;
+      margin-bottom: 0.15rem;
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
 
     .module-link {
@@ -532,7 +549,7 @@
       }
 
       .module-number {
-        grid-row: 1 / 5;
+        grid-row: 1 / 6;
         margin: 0;
         font-size: 2.6rem;
       }
@@ -550,11 +567,18 @@
       .module-description {
         display: -webkit-box;
         overflow: hidden;
-        margin: 0.45rem 0 0.7rem;
+        margin: 0.45rem 0 0.6rem;
         font-size: 0.9rem;
         line-height: 1.35;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
+      }
+
+      .activity-context {
+        margin-bottom: 0.7rem;
+        padding-top: 0.5rem;
+        font-size: 0.76rem;
+        line-height: 1.35;
       }
 
       .module-link {
@@ -588,14 +612,14 @@
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#modules">Skip to modules</a>
+  <a class="skip-link" href="#activities">Skip to activities</a>
 
   <header class="site-header">
     <div class="brand-lockup" aria-label="One Million Black Women, Black in Business">
       <span class="brand-name">One Million<br>Black Women</span>
       <span class="program-name">Black in<br>Business</span>
     </div>
-    <div class="module-count"><strong>04</strong> learning modules</div>
+    <div class="module-count"><strong>04</strong> learning activities</div>
   </header>
 
   <main>
@@ -603,7 +627,7 @@
       <div class="hero-copy">
         <p class="eyebrow">Interactive learning</p>
         <h1 id="page-title">Black in Business</h1>
-        <p class="hero-intro">Build confidence in the numbers behind a business. Choose a module to practice financial statements, profit planning, or working capital decisions.</p>
+        <p class="hero-intro">Build confidence in the numbers behind a business. Choose an activity to practice financial statements, profit planning, or working capital decisions.</p>
       </div>
       <div class="hero-art" aria-hidden="true">
         <span class="shape shape-sun"></span>
@@ -612,50 +636,54 @@
       </div>
     </section>
 
-    <section class="modules-section" id="modules" aria-labelledby="modules-title">
+    <section class="modules-section" id="activities" aria-labelledby="activities-title">
       <div class="section-heading">
-        <h2 id="modules-title">Choose your module.</h2>
+        <h2 id="activities-title">Choose your activity.</h2>
         <p>Each activity runs in your browser. No account or download is required.</p>
       </div>
 
       <div class="module-grid">
-        <a class="module-card card-1" href="./1%20-%20coffee%20cart%20financial%20statements%20simulator.html" aria-label="Open Financial Statements: Coffee Cart">
+        <a class="module-card card-1" href="./1%20-%20coffee%20cart%20financial%20statements%20simulator.html" aria-label="Open activity: Financial Statements, Coffee Cart">
           <div class="module-content">
             <span class="module-number" aria-hidden="true">01</span>
             <p class="module-kicker">Financial statements</p>
             <h3>Coffee Cart</h3>
             <p class="module-description">Predict how everyday transactions flow through the balance sheet, income statement, and cash flow statement.</p>
-            <span class="module-link">Open module</span>
+            <p class="activity-context"><strong>Course Module 2</strong> Demonstrates how business transactions flow through and impact the financial statements.</p>
+            <span class="module-link">Open activity</span>
           </div>
         </a>
 
-        <a class="module-card card-2" href="./2%20-%20ms%20yeo%20design%20studio%20simulator.html" aria-label="Open Financial Statements: Design Studio">
+        <a class="module-card card-2" href="./2%20-%20ms%20yeo%20design%20studio%20simulator.html" aria-label="Open activity: Financial Statements, Design Studio">
           <div class="module-content">
             <span class="module-number" aria-hidden="true">02</span>
             <p class="module-kicker">Financial statements</p>
             <h3>Design Studio</h3>
             <p class="module-description">Follow a service business through a month of activity and see how accrual accounting connects all three statements.</p>
-            <span class="module-link">Open module</span>
+            <p class="activity-context"><strong>Course Module 2</strong> Demonstrates how business transactions flow through and impact the financial statements.</p>
+            <span class="module-link">Open activity</span>
           </div>
         </a>
 
-        <a class="module-card card-3" href="./3%20-%20projecting%20P%26L.html" aria-label="Open Project Next Month's Profit and Loss">
+        <a class="module-card card-3" href="./3%20-%20projecting%20P%26L.html" aria-label="Open activity: Project Next Month's Profit and Loss">
           <div class="module-content">
             <span class="module-number" aria-hidden="true">03</span>
             <p class="module-kicker">Profit planning</p>
             <h3>Project Next Month's P&amp;L</h3>
             <p class="module-description">Build a revenue projection, classify costs, and test how changes in sales affect operating profit.</p>
-            <span class="module-link">Open module</span>
+            <p class="activity-context"><strong>Course Module 4</strong> Provides an overview of the P&amp;L projection template and how it is used.</p>
+            <span class="module-link">Open activity</span>
           </div>
         </a>
 
-        <a class="module-card card-4" href="./4%20-%20working%20capital%20management.html" aria-label="Open Cash and Carry: Working Capital Management">
+        <a class="module-card card-4" href="./4%20-%20working%20capital%20management.html" aria-label="Open activity: Cash and Carry, Working Capital Management">
           <div class="module-content">
             <span class="module-number" aria-hidden="true">04</span>
             <p class="module-kicker">Working capital</p>
             <h3>Cash &amp; Carry</h3>
             <p class="module-description">Manage inventory, customer credit, and supplier payments while balancing profit with cash.</p>
-            <span class="module-link">Open module</span>
+            <p class="activity-context"><strong>Course Module 5</strong> Supports the discussion of working capital management.</p>
+            <span class="module-link">Open activity</span>
           </div>
         </a>
       </div>
@@ -664,7 +692,7 @@
 
   <footer class="site-footer">
     <p class="footer-label">One Million Black Women · Black in Business</p>
-    <p class="footer-note">Four practical exercises for building financial fluency.</p>
+    <p class="footer-note">Four practical activities for building financial fluency.</p>
   </footer>
 </body>
 </html>
