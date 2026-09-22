@@ -52,7 +52,7 @@ The visual direction comes from the 2021 One Million Black Women brand guideline
 - Brand colors: white `#FFFFFF`, off-white `#F8F8F5`, sky blue `#9BEEEB`, magenta `#98004D`, coral `#FA6059`, emerald `#004E29`, Naples yellow `#FFB133`, and black `#000000`.
 - Use black or white typography on brand-color surfaces; do not introduce gradients.
 - Body and interface copy use Inter from Google Fonts, with Arial/Helvetica fallbacks.
-- Primary display headlines and activity numbers use League Gothic from Google Fonts, with Arial Narrow/condensed fallbacks. Longer activity titles use Inter 800 in sentence case, following the secondary-headline hierarchy.
+- Primary display headlines use League Gothic from Google Fonts, with Arial Narrow/condensed fallbacks. Activity titles use Inter 800 in sentence case, following the secondary-headline hierarchy. Do not number the activity cards; the former sequence numbers could be confused with the course-module labels.
 - The desktop activity directory is a four-across grid. Narrow tablets use two columns. Mobile uses compact single-column rows with two-line descriptions to limit scrolling.
 - Keep the page accessible: semantic headings, full-card links, visible keyboard focus, readable type, reduced-motion support, and the skip link should remain intact.
 

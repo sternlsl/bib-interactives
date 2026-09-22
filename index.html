@@ -80,7 +80,6 @@
     .brand-name,
     .program-name,
     .eyebrow,
-    .module-number,
     .module-kicker,
     .module-link,
     .footer-label {
@@ -345,19 +344,11 @@
       min-height: 22rem;
       flex-direction: column;
       padding: clamp(1.25rem, 2vw, 2rem);
-    }
-
-    .module-number {
-      margin-bottom: auto;
-      font-family: var(--display-font);
-      font-size: clamp(3.25rem, 5vw, 5.25rem);
-      font-weight: 400;
-      letter-spacing: -0.01em;
-      line-height: 0.85;
+      padding-top: clamp(6.25rem, 8vw, 7.75rem);
     }
 
     .module-kicker {
-      margin: 2.5rem 0 0.65rem;
+      margin: 0 0 0.65rem;
       font-size: 0.75rem;
     }
 
@@ -535,17 +526,8 @@
       }
 
       .module-content {
-        display: grid;
-        grid-template-columns: 3.5rem minmax(0, 1fr);
-        column-gap: 0.9rem;
-        align-items: start;
+        display: block;
         padding: 1.2rem;
-      }
-
-      .module-number {
-        grid-row: 1 / 6;
-        margin: 0;
-        font-size: 2.6rem;
       }
 
       .module-kicker {
@@ -639,7 +621,6 @@
       <div class="module-grid">
         <a class="module-card card-1" href="./1%20-%20coffee%20cart%20financial%20statements%20simulator.html" aria-label="Open activity: Financial Statements, Coffee Cart">
           <div class="module-content">
-            <span class="module-number" aria-hidden="true">01</span>
             <p class="module-kicker">Financial statements</p>
             <h3>Coffee Cart</h3>
             <p class="module-description">Predict how everyday transactions flow through the balance sheet, income statement, and cash flow statement.</p>
@@ -650,7 +631,6 @@
 
         <a class="module-card card-2" href="./2%20-%20ms%20yeo%20design%20studio%20simulator.html" aria-label="Open activity: Financial Statements, Design Studio">
           <div class="module-content">
-            <span class="module-number" aria-hidden="true">02</span>
             <p class="module-kicker">Financial statements</p>
             <h3>Design Studio</h3>
             <p class="module-description">Follow a service business through a month of activity and see how accrual accounting connects all three statements.</p>
@@ -661,7 +641,6 @@
 
         <a class="module-card card-3" href="./3%20-%20projecting%20P%26L.html" aria-label="Open activity: Project Next Month's Profit and Loss">
           <div class="module-content">
-            <span class="module-number" aria-hidden="true">03</span>
             <p class="module-kicker">Profit planning</p>
             <h3>Project Next Month's P&amp;L</h3>
             <p class="module-description">Build a revenue projection, classify costs, and test how changes in sales affect operating profit.</p>
@@ -672,7 +651,6 @@
 
         <a class="module-card card-4" href="./4%20-%20working%20capital%20management.html" aria-label="Open activity: Cash and Carry, Working Capital Management">
           <div class="module-content">
-            <span class="module-number" aria-hidden="true">04</span>
             <p class="module-kicker">Working capital</p>
             <h3>Cash &amp; Carry</h3>
             <p class="module-description">Manage inventory, customer credit, and supplier payments while balancing profit with cash.</p>
